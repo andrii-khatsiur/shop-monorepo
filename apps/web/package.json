@@ -2,9 +2,9 @@
   "name": "@apps/web",
   "type": "module",
   "scripts": {
-    "dev": "vinxi dev",
-    "build": "vinxi build",
-    "start": "vinxi start",
+    "dev": "dotenv -e .env vinxi dev",
+    "build": "dotenv -e .env vinxi build",
+    "start": "dotenv -e .env vinxi start",
     "version": "vinxi version"
   },
   "dependencies": {
@@ -16,5 +16,8 @@
   },
   "engines": {
     "node": ">=22"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^11.0.0"
   }
 }
