@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { upMigrations } from "./db";
-import { apiRoutes } from "./routes/index";
-import { requestLogger } from "./middleware/logger";
+import { apiRoutes } from "./routes/api.routes";
+import { requestLogger } from "./middleware/requestLogger";
 
 const main = async () => {
   try {

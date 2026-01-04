@@ -1,4 +1,15 @@
 CREATE TABLE
+  users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT UNIQUE NOT NULL,
+    google_id TEXT UNIQUE,
+    name TEXT,
+    avatar_url TEXT,
+    role TEXT DEFAULT 'user',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+
+CREATE TABLE
   brands (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,

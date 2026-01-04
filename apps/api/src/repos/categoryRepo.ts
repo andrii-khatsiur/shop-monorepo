@@ -1,5 +1,5 @@
 import { db } from "../db";
-import { slugify } from "../utils";
+import { slugify } from "../utils/common";
 
 export interface Category {
   id: number;

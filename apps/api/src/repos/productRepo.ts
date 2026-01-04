@@ -1,5 +1,5 @@
 import { db } from "../db";
-import { calculateDiscount, slugify } from "../utils";
+import { calculateDiscount, slugify } from "../utils/common";
 import { Brand } from "./brandRepo";
 import { Category } from "./categoryRepo";
 
