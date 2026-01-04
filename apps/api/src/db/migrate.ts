@@ -25,21 +25,19 @@ export async function migrateAsync(db: Database) {
     if (applied.has(file)) continue;
 
     const sql = await readFile(join(migrationsDir, file), "utf8");
-
     console.log(`🟡 Applying migration: ${file}`);
 
-    db.run("BEGIN");
-    try {
-      db.run(sql);
-      db.query<{}, [string]>("INSERT INTO migrations (id) VALUES (?)").run(
-        file
-      );
-      db.run("COMMIT");
+    const runMigration = db.transaction((script: string, filename: string) => {
+      db.run(script);
+      db.run("INSERT INTO migrations (id) VALUES (?)", [filename]);
+    });
 
+    try {
+      runMigration(sql, file);
       console.log(`🟢 Applied: ${file}`);
     } catch (err) {
-      db.run("ROLLBACK");
       console.error(`🔴 Failed migration: ${file}`);
+      console.error(err);
       throw err;
     }
   }
