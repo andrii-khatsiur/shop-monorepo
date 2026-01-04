@@ -54,10 +54,18 @@ export function getBrands(): Brand[] {
     .map(mapRowToBrand);
 }
 
-export function getBrandById(id: number): Brand | null {
+function getBrandById(id: number): Brand | null {
   const row = db
     .query<BrandRow, [number]>("SELECT * FROM brands WHERE id = ?")
     .get(id);
+
+  return row ? mapRowToBrand(row) : null;
+}
+
+export function getBrandBySlug(slug: string): Brand | null {
+  const row = db
+    .query<BrandRow, [string]>("SELECT * FROM brands WHERE slug = ?")
+    .get(slug);
 
   return row ? mapRowToBrand(row) : null;
 }

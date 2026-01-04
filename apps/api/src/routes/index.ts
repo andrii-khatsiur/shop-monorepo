@@ -1,8 +1,10 @@
 import { Hono } from "hono";
-import brandRoutes from "./brand";
+import { brandRoutes } from "./brand";
+import { categoryRoutes } from "./category";
 
-const api = new Hono();
+const apiRoutes = new Hono();
 
-api.route("/brands", brandRoutes);
+apiRoutes.route("/brands", brandRoutes);
+apiRoutes.route("/categories", categoryRoutes);
 
-export default api;
+export { apiRoutes };

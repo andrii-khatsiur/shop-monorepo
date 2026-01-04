@@ -8,10 +8,13 @@ export const getBrands = (c: Context) => {
 };
 
 export const getBrand = (c: Context) => {
-  const id = Number(c.req.param("id"));
-  const brand = BrandRepo.getBrandById(id);
+  const slug = c.req.param("slug");
+  const brand = BrandRepo.getBrandBySlug(slug);
 
-  if (!brand) return c.json({ error: "Brand not found" }, 404);
+  if (!brand) {
+    return c.json({ error: `Brand with slug "${slug}" not found` }, 404);
+  }
+
   return c.json(brand);
 };
 

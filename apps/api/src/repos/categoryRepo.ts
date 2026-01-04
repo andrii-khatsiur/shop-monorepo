@@ -62,6 +62,14 @@ export function getCategoryById(id: number): Category | null {
   return row ? mapRowToCategory(row) : null;
 }
 
+export function getCategoryBySlug(slug: string): Category | null {
+  const row = db
+    .query<CategoryRow, [string]>("SELECT * FROM categories WHERE slug = ?")
+    .get(slug);
+
+  return row ? mapRowToCategory(row) : null;
+}
+
 export function updateCategory(
   id: number,
   data: Partial<CategoryDto>

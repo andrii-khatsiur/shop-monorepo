@@ -9,4 +9,4 @@ brandRoutes.post("/", handlers.createBrand);
 brandRoutes.patch("/:id", handlers.updateBrand);
 brandRoutes.delete("/:id", handlers.deleteBrand);
 
-export default brandRoutes;
+export { brandRoutes };

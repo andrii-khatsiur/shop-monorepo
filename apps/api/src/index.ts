@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { upMigrations } from "./db";
-import apiRoutes from "./routes/index";
+import { apiRoutes } from "./routes/index";
 
 const main = async () => {
   try {
