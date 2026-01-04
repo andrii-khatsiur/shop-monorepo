@@ -1,16 +1,26 @@
 import { Hono } from "hono";
+import { upMigrations } from "./db";
 
-const app = new Hono();
+const main = async () => {
+  try {
+    await upMigrations();
 
-app.get("/", (c) => {
-  return c.text("Hello Hono!");
-});
+    const app = new Hono();
 
-const PORT = Number(Bun.env.API_PORT) || 3000;
+    app.get("/ping", (c) => c.text("pong"));
 
-console.log(`API running on http://localhost:${PORT}`);
+    const PORT = Number(Bun.env.API_PORT || 3000);
 
-Bun.serve({
-  fetch: app.fetch,
-  port: PORT,
-});
+    Bun.serve({
+      fetch: app.fetch,
+      port: PORT,
+    });
+
+    console.log(`🚀 Server listening on port ${PORT}`);
+  } catch (err) {
+    console.error("❌ Server failed to start", err);
+    process.exit(1);
+  }
+};
+
+main();
