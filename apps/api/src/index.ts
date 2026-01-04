@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { upMigrations } from "./db";
+import apiRoutes from "./routes/index";
 
 const main = async () => {
   try {
@@ -7,6 +8,7 @@ const main = async () => {
 
     const app = new Hono();
 
+    app.route("/api", apiRoutes);
     app.get("/ping", (c) => c.text("pong"));
 
     const PORT = Number(Bun.env.API_PORT || 3000);
