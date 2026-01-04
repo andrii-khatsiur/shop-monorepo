@@ -114,26 +114,63 @@ export function createProduct(data: ProductDto): Product {
   return getProductById(productRowId)!;
 }
 
+export interface ProductFilters {
+  brandSlug?: string;
+  categorySlug?: string;
+}
+
 export function getProducts(
   page: number = 1,
-  limit: number = 10
+  limit: number = 10,
+  filters: ProductFilters = {}
 ): PaginatedProducts {
   const offset = (page - 1) * limit;
+  const params: any[] = [];
+  let whereClauses: string[] = [];
+
+  if (filters.brandSlug) {
+    whereClauses.push(`b.slug = ?`);
+    params.push(filters.brandSlug);
+  }
+
+  if (filters.categorySlug) {
+    whereClauses.push(`
+      p.id IN (
+        SELECT pc.product_id 
+        FROM product_categories pc 
+        JOIN categories c ON c.id = pc.category_id 
+        WHERE c.slug = ?
+      )
+    `);
+    params.push(filters.categorySlug);
+  }
+
+  const whereSql =
+    whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : "";
 
   const countRes = db
-    .query<{ total: number }, []>("SELECT COUNT(*) as total FROM products")
-    .get();
+    .query<{ total: number }, any[]>(
+      `
+      SELECT COUNT(DISTINCT p.id) as total 
+      FROM products p
+      LEFT JOIN brands b ON p.brand_id = b.id
+      ${whereSql}
+    `
+    )
+    .get(...params);
+
   const total = countRes?.total ?? 0;
 
   const rows = db
-    .query<ProductRow, [number, number]>(
+    .query<ProductRow, any[]>(
       `
-    ${SELECT_PRODUCT_JOINED}
-    ORDER BY p.created_at DESC
-    LIMIT ? OFFSET ?
-  `
+      ${SELECT_PRODUCT_JOINED}
+      ${whereSql}
+      ORDER BY p.created_at DESC
+      LIMIT ? OFFSET ?
+      `
     )
-    .all(limit, offset);
+    .all(...params, limit, offset);
 
   return {
     hits: rows.map(mapToProduct),

@@ -5,7 +5,12 @@ export const getProducts = (c: Context) => {
   const page = Number(c.req.query("page") || 1);
   const limit = Number(c.req.query("limit") || 10);
 
-  const result = ProductRepo.getProducts(page, limit);
+  const filters = {
+    brandSlug: c.req.query("brand"),
+    categorySlug: c.req.query("category"),
+  };
+
+  const result = ProductRepo.getProducts(page, limit, filters);
   return c.json(result);
 };
 
