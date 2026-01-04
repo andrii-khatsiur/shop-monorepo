@@ -59,4 +59,12 @@ export const UserRepository = {
     if (!row) throw new Error("Failed to upsert user");
     return mapRowToUser(row);
   },
+
+  findById(id: number): User | null {
+    const row = db
+      .query<UserRow, [number]>("SELECT * FROM users WHERE id = ?")
+      .get(id);
+
+    return row ? mapRowToUser(row) : null;
+  },
 };

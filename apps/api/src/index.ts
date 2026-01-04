@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { upMigrations } from "./db";
 import { apiRoutes } from "./routes/api.routes";
 import { requestLogger } from "./middleware/requestLogger";
+import { authMiddleware } from "./middleware/auth";
 
 const main = async () => {
   try {
@@ -10,6 +11,8 @@ const main = async () => {
     const app = new Hono();
 
     app.use("*", requestLogger);
+
+    app.use("/api/*", authMiddleware);
 
     app.route("/api", apiRoutes);
     app.get("/ping", (c) => c.text("pong"));
