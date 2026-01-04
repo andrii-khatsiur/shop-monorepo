@@ -3,25 +3,20 @@ import { Context, Next } from "hono";
 import { logger } from "../utils/logger";
 
 export const requestLogger = async (c: Context, next: Next) => {
-  const { method, url } = c.req;
   const start = performance.now();
-
   await next();
-
   const duration = (performance.now() - start).toFixed(2);
-  const status = c.res.status;
 
   const logPayload = {
-    method,
-    url,
-    status,
+    method: c.req.method,
+    url: c.req.url,
+    status: c.res.status,
     duration: `${duration}ms`,
-    ip: c.req.header("x-forwarded-for") || "localhost",
   };
 
-  if (status >= 400) {
-    logger.error(logPayload, "Request failed");
+  if (c.res.status >= 400) {
+    logger.warn(logPayload, "HTTP Request Finished with Error");
   } else {
-    logger.info(logPayload, "Request success");
+    logger.info(logPayload, "HTTP Request Finished");
   }
 };

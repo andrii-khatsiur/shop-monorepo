@@ -1,4 +1,4 @@
-import { db } from "../db";
+import { db } from "../db/db";
 import { calculateDiscount, slugify } from "../utils/common";
 import { Brand } from "./brandRepo";
 import { Category } from "./categoryRepo";
@@ -73,6 +73,30 @@ const SELECT_PRODUCT_JOINED = `
 `;
 
 export function createProduct(data: ProductDto): Product {
+  if (data.brandId) {
+    const brand = db
+      .query("SELECT id FROM brands WHERE id = ?")
+      .get(data.brandId);
+    if (!brand) {
+      const error = new Error(`Brand with ID ${data.brandId} not found`);
+      (error as any).status = 400;
+      throw error;
+    }
+  }
+
+  if (data.categoryIds?.length) {
+    const placeholders = data.categoryIds.map(() => "?").join(",");
+    const found = db
+      .query(`SELECT id FROM categories WHERE id IN (${placeholders})`)
+      .all(...data.categoryIds);
+
+    if (found.length !== data.categoryIds.length) {
+      const error = new Error("One or more Category IDs are invalid");
+      (error as any).status = 400;
+      throw error;
+    }
+  }
+
   const slug = slugify(data.name);
 
   const productRowId = db.transaction((dto: ProductDto, pSlug: string) => {

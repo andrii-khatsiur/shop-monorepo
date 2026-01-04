@@ -31,25 +31,18 @@ export const getProduct = (c: Context) => {
 };
 
 export const createProduct = async (c: Context) => {
-  try {
-    const body = await c.req.json();
-    const product = ProductRepo.createProduct(body);
-    return c.json(product, 201);
-  } catch (err: any) {
-    return c.json({ error: err.message }, 400);
-  }
+  const body = await c.req.json();
+  const product = ProductRepo.createProduct(body);
+  return c.json(product, 201);
 };
 
 export const updateProduct = async (c: Context) => {
   const id = Number(c.req.param("id"));
-  try {
-    const body = await c.req.json();
-    const updated = ProductRepo.updateProduct(id, body);
-    if (!updated) return c.json({ error: "Product not found" }, 404);
-    return c.json(updated);
-  } catch (err: any) {
-    return c.json({ error: err.message }, 400);
-  }
+
+  const body = await c.req.json();
+  const updated = ProductRepo.updateProduct(id, body);
+  if (!updated) return c.json({ error: "Product not found" }, 404);
+  return c.json(updated);
 };
 
 export const deleteProduct = (c: Context) => {

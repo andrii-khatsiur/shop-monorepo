@@ -1,4 +1,4 @@
-import { db } from "../db";
+import { db } from "../db/db";
 
 export interface User {
   id: number;

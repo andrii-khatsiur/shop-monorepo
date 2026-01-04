@@ -19,13 +19,9 @@ export const getBrand = (c: Context) => {
 };
 
 export const createBrand = async (c: Context) => {
-  try {
-    const body = await c.req.json();
-    const newBrand = BrandRepo.createBrand(body);
-    return c.json(newBrand, 201);
-  } catch (err: any) {
-    return c.json({ error: err.message }, 400);
-  }
+  const body = await c.req.json();
+  const newBrand = BrandRepo.createBrand(body);
+  return c.json(newBrand, 201);
 };
 
 export const updateBrand = async (c: Context) => {

@@ -1,4 +1,4 @@
-import { db } from "../db";
+import { db } from "../db/db";
 import { slugify } from "../utils/common";
 
 export interface Brand {
