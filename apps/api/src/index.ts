@@ -1,12 +1,15 @@
 import { Hono } from "hono";
 import { upMigrations } from "./db";
 import { apiRoutes } from "./routes/index";
+import { requestLogger } from "./middleware/logger";
 
 const main = async () => {
   try {
     await upMigrations();
 
     const app = new Hono();
+
+    app.use("*", requestLogger);
 
     app.route("/api", apiRoutes);
     app.get("/ping", (c) => c.text("pong"));
