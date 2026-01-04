@@ -6,6 +6,7 @@
   ],
   "scripts": {
     "dev": "bun run --filter '*' dev",
-    "build": "bun run --filter '*' build"
+    "build": "bun run --filter '*' build",
+    "env:copy": "bun run scripts/copy-env.js"
   }
 }
