@@ -210,6 +210,19 @@ export function deleteProduct(id: number): boolean {
   return result.changes > 0;
 }
 
+export function getProductBySlug(slug: string): Product | null {
+  const row = db
+    .query<ProductRow, [string]>(
+      `
+    ${SELECT_PRODUCT_JOINED}
+    WHERE p.slug = ?
+  `
+    )
+    .get(slug);
+
+  return row ? mapToProduct(row) : null;
+}
+
 function mapToProduct(row: ProductRow): Product {
   const rawCategories = JSON.parse(row.category_json);
 
