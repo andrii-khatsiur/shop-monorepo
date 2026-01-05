@@ -1,8 +1,8 @@
 import { calculateDiscount, slugify } from "../utils/common";
-import { Brand } from "./brandRepo";
-import { Category } from "./categoryRepo";
-
 import { DatabaseConnection } from "../db/db";
+import { ProductModel, ProductRowI } from "../db/models/ProductModel";
+import { BrandModel, BrandRowI } from "../db/models/BrandModel";
+import { CategoryModel, CategoryRowI } from "../db/models/CategoryModel ";
 
 const db = DatabaseConnection.getDb();
 
@@ -19,30 +19,10 @@ export interface Product {
   isActive: boolean;
   isNew: boolean;
   createdAt: string;
-  brand: Brand | null;
-  categories: Category[];
+  categoriesIds: number[];
 }
 
-interface ProductRow {
-  id: number;
-  name: string;
-  description: string;
-  image: string;
-  old_price: number | null;
-  discount: number | null;
-  price: number;
-  brand_id: number | null;
-  slug: string;
-  is_active: number;
-  is_new: number;
-  created_at: string;
-  brand_name: string | null;
-  brand_slug: string | null;
-  brand_is_active: number | null;
-  category_json: string;
-}
-
-export interface ProductDto {
+interface ProductInput {
   name: string;
   description: string;
   image: string;
@@ -54,32 +34,32 @@ export interface ProductDto {
   categoryIds?: number[];
 }
 
+const mapToProduct =
+  (categoriesMap: Record<number, number[]>) =>
+  (row: ProductRowI): Product => ({
+    id: row.id,
+    name: row.name,
+    description: row.description,
+    image: row.image,
+    oldPrice: row.old_price,
+    discount: row.discount,
+    price: row.price,
+    brandId: row.brand_id,
+    slug: row.slug,
+    isActive: !!row.is_active,
+    isNew: !!row.is_new,
+    createdAt: row.created_at,
+    categoriesIds: categoriesMap[row.id] ?? [],
+  });
+
 export interface PaginatedProducts {
   hits: Product[];
   total: number;
 }
 
-const SELECT_PRODUCT_JOINED = `
-  SELECT 
-    p.*,
-    b.name as brand_name, b.slug as brand_slug, b.is_active as brand_is_active,
-    (
-      SELECT json_group_array(
-        json_object('id', c.id, 'name', c.name, 'slug', c.slug, 'isActive', c.is_active)
-      )
-      FROM product_categories pc
-      JOIN categories c ON c.id = pc.category_id
-      WHERE pc.product_id = p.id
-    ) as category_json
-  FROM products p
-  LEFT JOIN brands b ON p.brand_id = b.id
-`;
-
-export function createProduct(data: ProductDto): Product {
+export function createProduct(data: ProductInput): Product {
   if (data.brandId) {
-    const brand = db
-      .query("SELECT id FROM brands WHERE id = ?")
-      .get(data.brandId);
+    const brand = BrandModel.findById(data.brandId);
     if (!brand) {
       const error = new Error(`Brand with ID ${data.brandId} not found`);
       (error as any).status = 400;
@@ -88,12 +68,8 @@ export function createProduct(data: ProductDto): Product {
   }
 
   if (data.categoryIds?.length) {
-    const placeholders = data.categoryIds.map(() => "?").join(",");
-    const found = db
-      .query(`SELECT id FROM categories WHERE id IN (${placeholders})`)
-      .all(...data.categoryIds);
-
-    if (found.length !== data.categoryIds.length) {
+    const categories = CategoryModel.findByIds(data.categoryIds);
+    if (categories.length !== data.categoryIds.length) {
       const error = new Error("One or more Category IDs are invalid");
       (error as any).status = 400;
       throw error;
@@ -102,9 +78,9 @@ export function createProduct(data: ProductDto): Product {
 
   const slug = slugify(data.name);
 
-  const productRowId = db.transaction((dto: ProductDto, pSlug: string) => {
+  const productRowId = db.transaction((dto: ProductInput, pSlug: string) => {
     const row = db
-      .query<ProductRow, any>(
+      .query<ProductRowI, any>(
         `
       INSERT INTO products (
         name, description, image, old_price, discount, price, brand_id, slug, is_active, is_new
@@ -151,81 +127,49 @@ export function getProducts(
   limit: number = 10,
   filters: ProductFilters = {}
 ): PaginatedProducts {
-  const offset = (page - 1) * limit;
-  const params: any[] = [];
-  let whereClauses: string[] = [];
+  const brand = filters.brandSlug
+    ? BrandModel.findOne<BrandRowI>({ slug: filters.brandSlug })
+    : null;
+  if (filters.brandSlug && !brand) return { hits: [], total: 0 };
 
-  if (filters.brandSlug) {
-    whereClauses.push(`b.slug = ?`);
-    params.push(filters.brandSlug);
-  }
+  const category = filters.categorySlug
+    ? CategoryModel.findOne<CategoryRowI>({ slug: filters.categorySlug })
+    : null;
+  if (filters.categorySlug && !category) return { hits: [], total: 0 };
 
-  if (filters.categorySlug) {
-    whereClauses.push(`
-      p.id IN (
-        SELECT pc.product_id 
-        FROM product_categories pc 
-        JOIN categories c ON c.id = pc.category_id 
-        WHERE c.slug = ?
-      )
-    `);
-    params.push(filters.categorySlug);
-  }
+  const { rows: products, total } = ProductModel.findManyWithFilter(
+    page,
+    limit,
+    brand?.id,
+    category?.id
+  );
 
-  const whereSql =
-    whereClauses.length > 0 ? `WHERE ${whereClauses.join(" AND ")}` : "";
-
-  const countRes = db
-    .query<{ total: number }, any[]>(
-      `
-      SELECT COUNT(DISTINCT p.id) as total 
-      FROM products p
-      LEFT JOIN brands b ON p.brand_id = b.id
-      ${whereSql}
-    `
-    )
-    .get(...params);
-
-  const total = countRes?.total ?? 0;
-
-  const rows = db
-    .query<ProductRow, any[]>(
-      `
-      ${SELECT_PRODUCT_JOINED}
-      ${whereSql}
-      ORDER BY p.created_at DESC
-      LIMIT ? OFFSET ?
-      `
-    )
-    .all(...params, limit, offset);
+  const productIds = products.map((p) => p.id);
+  const categoriesMap = ProductModel.findCategoriesByProductIds(productIds);
 
   return {
-    hits: rows.map(mapToProduct),
+    hits: products.map(mapToProduct(categoriesMap)),
     total,
   };
 }
-
 export function getProductById(id: number): Product | null {
-  const row = db
-    .query<ProductRow, [number]>(
-      `
-    ${SELECT_PRODUCT_JOINED}
-    WHERE p.id = ?
-  `
-    )
-    .get(id);
+  const row = ProductModel.findById<ProductRowI>(id);
 
-  return row ? mapToProduct(row) : null;
+  if (!row) return null;
+
+  const categoriesMap = ProductModel.findCategoriesByProductIds([row.id]);
+
+  return mapToProduct(categoriesMap)(row);
 }
 
 export function updateProduct(
   id: number,
-  data: Partial<ProductDto>
+  data: Partial<ProductInput>
 ): Product | null {
   const existing = getProductById(id);
   if (!existing) return null;
 
-  db.transaction((updateData: Partial<ProductDto>) => {
+  db.transaction((updateData: Partial<ProductInput>) => {
     const name = updateData.name ?? existing.name;
     const price = updateData.price ?? existing.price;
     const oldPrice =
@@ -270,58 +214,14 @@ export function updateProduct(
 }
 
 export function deleteProduct(id: number): boolean {
-  const result = db.query("DELETE FROM products WHERE id = ?").run(id);
-  return result.changes > 0;
+  return ProductModel.delete(id);
 }
 
 export function getProductBySlug(slug: string): Product | null {
-  const row = db
-    .query<ProductRow, [string]>(
-      `
-    ${SELECT_PRODUCT_JOINED}
-    WHERE p.slug = ?
-  `
-    )
-    .get(slug);
+  const row = ProductModel.findOne<ProductRowI>({ slug });
+  if (!row) return null;
 
-  return row ? mapToProduct(row) : null;
-}
+  const categoriesMap = ProductModel.findCategoriesByProductIds([row.id]);
 
-function mapToProduct(row: ProductRow): Product {
-  const rawCategories = JSON.parse(row.category_json);
-
-  const categories: Category[] = Array.isArray(rawCategories)
-    ? rawCategories
-        .filter((c) => c.id !== null)
-        .map((c) => ({
-          id: c.id,
-          name: c.name,
-          slug: c.slug,
-          isActive: Boolean(c.isActive),
-        }))
-    : [];
-
-  return {
-    id: row.id,
-    name: row.name,
-    description: row.description,
-    image: row.image,
-    oldPrice: row.old_price,
-    discount: row.discount,
-    price: row.price,
-    brandId: row.brand_id,
-    slug: row.slug,
-    isActive: !!row.is_active,
-    isNew: !!row.is_new,
-    createdAt: row.created_at,
-    brand: row.brand_id
-      ? {
-          id: row.brand_id,
-          name: row.brand_name!,
-          slug: row.brand_slug!,
-          isActive: Boolean(row.brand_is_active),
-        }
-      : null,
-    categories,
-  };
+  return mapToProduct(categoriesMap)(row);
 }

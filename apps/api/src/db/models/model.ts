@@ -84,10 +84,7 @@ export abstract class Model {
     const setClause = keys.map((key) => `${key} = ?`).join(", ");
 
     const query = `UPDATE ${this.tableName} SET ${setClause} WHERE id = ? RETURNING *`;
-    const stmt = this.db.prepare(query);
-    stmt.run(...values, id);
-
-    return this.findById(id);
+    return this.db.query(query).get(...values, id) as T | null;
   }
 
   static delete(
@@ -122,5 +119,17 @@ export abstract class Model {
   ): any {
     const stmt = this.db.prepare(query);
     return stmt.all(...params);
+  }
+
+  static findByIds<T>(
+    this: typeof Model & { tableName: string },
+    ids: number[]
+  ): T[] {
+    if (ids.length === 0) return [];
+    const placeholders = ids.map(() => "?").join(", ");
+    const query = `
+        SELECT * FROM ${this.tableName} WHERE id IN (${placeholders})
+      `;
+    return this.db.query<T, number[]>(query).all(...ids);
   }
 }
