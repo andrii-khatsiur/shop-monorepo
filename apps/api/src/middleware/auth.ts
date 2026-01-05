@@ -25,7 +25,7 @@ export const authMiddleware = async (c: Context<Env>, next: Next) => {
   try {
     const payload = await verify(token, JWT_SECRET);
 
-    const user = UserRepository.findById(Number(payload.id));
+    const user = UserRepository.getById(Number(payload.id));
 
     if (!user) {
       logger.warn(
