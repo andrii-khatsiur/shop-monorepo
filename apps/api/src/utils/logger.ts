@@ -1,5 +1,3 @@
-import { Context, Next } from "hono";
-
 import pino from "pino";
 import path from "path";
 
@@ -16,16 +14,16 @@ if (!isProduction) {
     options: { colorize: true },
     level: "debug",
   });
+} else {
+  targets.push({
+    target: "pino/file",
+    options: {
+      destination: logFilePath,
+      mkdir: true,
+    },
+    level: isProduction ? "info" : "debug",
+  });
 }
-
-targets.push({
-  target: "pino/file",
-  options: {
-    destination: logFilePath,
-    mkdir: true,
-  },
-  level: isProduction ? "info" : "debug",
-});
 
 export const logger = pino({
   level: isProduction ? "info" : "debug",
