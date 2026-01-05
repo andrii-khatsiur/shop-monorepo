@@ -1,8 +1,6 @@
 import { slugify } from "../utils/common";
 
-import { DatabaseConnection } from "../db/db";
-
-const db = DatabaseConnection.getDb();
+import { CategoryModel, CategoryRowI } from "../db/models/CategoryModel ";
 
 export interface Category {
   id: number;
@@ -11,87 +9,57 @@ export interface Category {
   isActive: boolean;
 }
 
-interface CategoryRow {
-  id: number;
-  name: string;
-  slug: string;
-  is_active: number;
-}
-
 interface CategoryDto {
   name: string;
   isActive: boolean;
 }
 
-const mapRowToCategory = (row: CategoryRow): Category => ({
+const mapRowToCategory = (row: CategoryRowI): Category => ({
   id: row.id,
   name: row.name,
   slug: row.slug,
   isActive: Boolean(row.is_active),
 });
 
-export function createCategory({ name, isActive }: CategoryDto): Category {
-  const slug = slugify(name);
+const mapCategoryToRow = (dto: CategoryDto): Omit<CategoryRowI, "id"> => ({
+  name: dto.name,
+  slug: slugify(dto.name),
+  is_active: dto.isActive ? 1 : 0,
+});
+
+export function createCategory(dto: CategoryDto): Category {
+  const row = mapCategoryToRow(dto);
 
   try {
-    const row = db
-      .query<CategoryRow, [string, string, number]>(
-        `INSERT INTO categories (name, slug, is_active) VALUES (?, ?, ?) RETURNING *`
-      )
-      .get(name, slug, isActive ? 1 : 0);
-
-    if (!row) throw new Error("Failed to create category");
-    return mapRowToCategory(row);
+    const created = CategoryModel.create(row);
+    return mapRowToCategory(created);
   } catch (error: any) {
     if (error.message?.includes("UNIQUE constraint failed")) {
-      throw new Error(`Category with slug "${slug}" already exists`);
+      throw new Error(`Category with slug "${row.slug}" already exists`);
     }
     throw error;
   }
 }
 
 export function getCategories(): Category[] {
-  return db
-    .query<CategoryRow, []>("SELECT * FROM categories ORDER BY name ASC")
-    .all()
-    .map(mapRowToCategory);
-}
-
-export function getCategoryById(id: number): Category | null {
-  const row = db
-    .query<CategoryRow, [number]>("SELECT * FROM categories WHERE id = ?")
-    .get(id);
-
-  return row ? mapRowToCategory(row) : null;
+  return CategoryModel.findAll<CategoryRowI>().map(mapRowToCategory);
 }
 
 export function getCategoryBySlug(slug: string): Category | null {
-  const row = db
-    .query<CategoryRow, [string]>("SELECT * FROM categories WHERE slug = ?")
-    .get(slug);
-
+  const row = CategoryModel.findOne<CategoryRowI>({ slug });
   return row ? mapRowToCategory(row) : null;
 }
 
-export function updateCategory(
-  id: number,
-  data: Partial<CategoryDto>
-): Category | null {
-  const existing = getCategoryById(id);
+export function updateCategory(id: number, data: CategoryDto): Category | null {
+  const existing = CategoryModel.findById(id);
   if (!existing) return null;
 
-  const name = data.name ?? existing.name;
-  const slug = data.name ? slugify(data.name) : existing.slug;
-  const isActive = data.isActive ?? existing.isActive;
+  const updatedRow = mapCategoryToRow(data);
 
-  db.query(
-    `UPDATE categories SET name = ?, slug = ?, is_active = ? WHERE id = ?`
-  ).run(name, slug, isActive ? 1 : 0, id);
-
-  return { id, name, slug, isActive };
+  const updated = CategoryModel.update<CategoryRowI>(id, updatedRow);
+  return updated ? mapRowToCategory(updated) : null;
 }
 
 export function deleteCategory(id: number): boolean {
-  const result = db.query("DELETE FROM categories WHERE id = ?").run(id);
-  return result.changes > 0;
+  return CategoryModel.delete(id);
 }
