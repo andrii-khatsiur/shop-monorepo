@@ -1,4 +1,4 @@
-import { db } from "../db/db";
+import { BrandModel, BrandRowI } from "../db/models/BrandModel";
 import { slugify } from "../utils/common";
 
 export interface Brand {
@@ -8,84 +8,60 @@ export interface Brand {
   isActive: boolean;
 }
 
-interface BrandRow {
-  id: number;
-  name: string;
-  slug: string;
-  is_active: number;
-}
-
 interface BrandDto {
   name: string;
   isActive: boolean;
 }
 
-const mapRowToBrand = (row: BrandRow): Brand => ({
+const mapRowToBrand = (row: BrandRowI): Brand => ({
   id: row.id,
   name: row.name,
   slug: row.slug,
   isActive: Boolean(row.is_active),
 });
 
-export function createBrand({ name, isActive }: BrandDto): Brand {
-  const slug = slugify(name);
+const mapBrandToRow = (brand: BrandDto): Omit<BrandRowI, "id"> => ({
+  name: brand.name,
+  slug: slugify(brand.name),
+  is_active: brand.isActive ? 1 : 0,
+});
 
+export function createBrand(data: BrandDto): Brand {
+  const input = mapBrandToRow(data);
   try {
-    const row = db
-      .query<BrandRow, [string, string, number]>(
-        `INSERT INTO brands (name, slug, is_active) VALUES (?, ?, ?) RETURNING *`
-      )
-      .get(name, slug, isActive ? 1 : 0);
+    const brand = BrandModel.create<BrandRowI>(input);
 
-    if (!row) throw new Error("Failed to create brand");
-    return mapRowToBrand(row);
+    if (!brand) throw new Error("Failed to create brand");
+    return mapRowToBrand(brand);
   } catch (error: any) {
     if (error.message?.includes("UNIQUE constraint failed")) {
-      throw new Error(`Brand with slug "${slug}" already exists`);
+      throw new Error(`Brand with slug "${input.slug}" already exists`);
     }
     throw error;
   }
 }
 
 export function getBrands(): Brand[] {
-  return db
-    .query<BrandRow, []>("SELECT * FROM brands ORDER BY name ASC")
-    .all()
-    .map(mapRowToBrand);
-}
-
-function getBrandById(id: number): Brand | null {
-  const row = db
-    .query<BrandRow, [number]>("SELECT * FROM brands WHERE id = ?")
-    .get(id);
-
-  return row ? mapRowToBrand(row) : null;
+  const brands = BrandModel.findAll<BrandRowI>();
+  return brands.map(mapRowToBrand);
 }
 
 export function getBrandBySlug(slug: string): Brand | null {
-  const row = db
-    .query<BrandRow, [string]>("SELECT * FROM brands WHERE slug = ?")
-    .get(slug);
+  const brand = BrandModel.findOne<BrandRowI>({ slug });
 
-  return row ? mapRowToBrand(row) : null;
+  return brand ? mapRowToBrand(brand) : null;
 }
 
-export function updateBrand(id: number, data: Partial<BrandDto>): Brand | null {
-  const existing = getBrandById(id);
+export function updateBrand(id: number, data: BrandDto): Brand | null {
+  const existing = BrandModel.findById<BrandRowI>(id);
   if (!existing) return null;
 
-  const name = data.name ?? existing.name;
-  const slug = data.name ? slugify(data.name) : existing.slug;
-  const isActive = data.isActive ?? existing.isActive;
+  const brand = BrandModel.update<BrandRowI>(id, mapBrandToRow(data));
 
-  db.query(
-    `UPDATE brands SET name = ?, slug = ?, is_active = ? WHERE id = ?`
-  ).run(name, slug, isActive ? 1 : 0, id);
-
-  return { id, name, slug, isActive };
+  return brand ? mapRowToBrand(brand) : null;
 }
 
 export function deleteBrand(id: number): boolean {
-  const result = db.query("DELETE FROM brands WHERE id = ?").run(id);
-  return result.changes > 0;
+  const result = BrandModel.delete(id);
+  return result;
 }
