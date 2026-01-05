@@ -21,7 +21,7 @@ export class UserModel extends Model {
   public static tableName = "users";
 
   static createOrUpdateGoogleUser(data: GoogleUserInput): UserRowI | null {
-    const query = `INSERT INTO users (email, google_id, name, avatar_url)
+    const query = `INSERT INTO ${this.tableName} (email, google_id, name, avatar_url)
          VALUES (?, ?, ?, ?)
          ON CONFLICT(email) DO UPDATE SET
             google_id = excluded.google_id,
