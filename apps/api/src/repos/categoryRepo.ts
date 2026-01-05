@@ -1,5 +1,8 @@
-import { db } from "../db/db";
 import { slugify } from "../utils/common";
+
+import { DatabaseConnection } from "../db/db";
+
+const db = DatabaseConnection.getDb();
 
 export interface Category {
   id: number;

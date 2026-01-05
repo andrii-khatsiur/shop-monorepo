@@ -1,7 +1,10 @@
-import { db } from "../db/db";
 import { calculateDiscount, slugify } from "../utils/common";
 import { Brand } from "./brandRepo";
 import { Category } from "./categoryRepo";
+
+import { DatabaseConnection } from "../db/db";
+
+const db = DatabaseConnection.getDb();
 
 export interface Product {
   id: number;

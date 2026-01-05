@@ -1,13 +1,13 @@
 import { Hono } from "hono";
-import { upMigrations } from "./db/db";
 import { apiRoutes } from "./routes/api.routes";
 import { requestLogger } from "./middleware/requestLogger";
 import { authMiddleware } from "./middleware/auth";
 import { errorLogger } from "./middleware/errorLogger";
+import { initDatabase } from "./db/db";
 
 const main = async () => {
   try {
-    await upMigrations();
+    await initDatabase();
 
     const app = new Hono();
 

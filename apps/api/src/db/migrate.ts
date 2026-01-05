@@ -1,6 +1,7 @@
 import { Database } from "bun:sqlite";
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { DatabaseConnection } from "./db";
 
 export async function migrateAsync(db: Database) {
   db.run(`

@@ -1,4 +1,6 @@
-import { db } from "../db/db";
+import { DatabaseConnection } from "../db/db";
+
+const db = DatabaseConnection.getDb();
 
 export interface User {
   id: number;

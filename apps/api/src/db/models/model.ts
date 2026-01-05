@@ -1,5 +1,5 @@
 import { Database } from "bun:sqlite";
-import { DatabaseConnection } from "./db";
+import { DatabaseConnection } from "../db";
 
 type WhereCondition = {
   [key: string]: string | number | boolean;

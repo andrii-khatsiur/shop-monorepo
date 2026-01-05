@@ -44,8 +44,6 @@ export class DatabaseConnection {
 
 DatabaseConnection.init();
 
-export const db = DatabaseConnection.getDb();
-
-export const upMigrations = async (): Promise<void> => {
+export const initDatabase = async () => {
   await migrateAsync(DatabaseConnection.getDb());
 };
