@@ -6,6 +6,9 @@
   ],
   "scripts": {
     "dev": "bun run --filter '*' dev",
+    "api:dev": "bun run --filter @apps/api dev",
+    "admin:dev": "bun run --filter @apps/admin dev",
+    "web:dev": "bun run --filter @apps/web dev",
     "build": "bun run --filter '*' build",
     "env:copy": "bun run scripts/copy-env.js"
   }
