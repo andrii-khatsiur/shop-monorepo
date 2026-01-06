@@ -1,10 +1,7 @@
 import { calculateDiscount, slugify } from "../utils/common";
-import { DatabaseConnection } from "../db/db";
 import { ProductModel, ProductRowI } from "../db/models/ProductModel";
 import { BrandModel, BrandRowI } from "../db/models/BrandModel";
 import { CategoryModel, CategoryRowI } from "../db/models/CategoryModel ";
-
-const db = DatabaseConnection.getDb();
 
 export interface Product {
   id: number;
@@ -19,7 +16,7 @@ export interface Product {
   isActive: boolean;
   isNew: boolean;
   createdAt: string;
-  categoriesIds: number[];
+  categoryIds: number[];
 }
 
 interface ProductInput {
@@ -49,15 +46,28 @@ const mapToProduct =
     isActive: !!row.is_active,
     isNew: !!row.is_new,
     createdAt: row.created_at,
-    categoriesIds: categoriesMap[row.id] ?? [],
+    categoryIds: categoriesMap[row.id] ?? [],
   });
+
+const mapToProductRow = (input: ProductInput) => ({
+  name: input.name,
+  description: input.description,
+  image: input.image,
+  old_price: input.oldPrice ?? null,
+  discount: calculateDiscount(input.price, input.oldPrice),
+  price: input.price,
+  brand_id: input.brandId ?? null,
+  slug: slugify(input.name),
+  is_active: input.isActive ? 1 : 0,
+  is_new: input.isNew ? 1 : 0,
+});
 
 export interface PaginatedProducts {
   hits: Product[];
   total: number;
 }
 
-export function createProduct(data: ProductInput): Product {
+const validateProductInput = (data: ProductInput) => {
   if (data.brandId) {
     const brand = BrandModel.findById(data.brandId);
     if (!brand) {
@@ -75,46 +85,21 @@ export function createProduct(data: ProductInput): Product {
       throw error;
     }
   }
+};
 
-  const slug = slugify(data.name);
+export function createProduct(data: ProductInput): Product | null {
+  validateProductInput(data);
 
-  const productRowId = db.transaction((dto: ProductInput, pSlug: string) => {
-    const row = db
-      .query<ProductRowI, any>(
-        `
-      INSERT INTO products (
-        name, description, image, old_price, discount, price, brand_id, slug, is_active, is_new
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      RETURNING id
-    `
-      )
-      .get(
-        dto.name,
-        dto.description,
-        dto.image,
-        dto.oldPrice ?? null,
-        calculateDiscount(dto.price, dto.oldPrice),
-        dto.price,
-        dto.brandId ?? null,
-        pSlug,
-        dto.isActive ?? 1,
-        dto.isNew ?? 0
-      );
+  const product = ProductModel.createWithCategories(
+    mapToProductRow(data),
+    data?.categoryIds
+  );
 
-    if (!row) throw new Error("Failed to create product");
+  if (product) {
+    return getProductById(product.id);
+  }
 
-    if (dto.categoryIds && dto.categoryIds.length > 0) {
-      const insertStmt = db.prepare(
-        "INSERT INTO product_categories (product_id, category_id) VALUES (?, ?)"
-      );
-      for (const catId of dto.categoryIds) {
-        insertStmt.run(row.id, catId);
-      }
-    }
-    return row.id;
-  })(data, slug);
-
-  return getProductById(productRowId)!;
+  return null;
 }
 
 export interface ProductFilters {
@@ -152,6 +137,7 @@ export function getProducts(
     total,
   };
 }
+
 export function getProductById(id: number): Product | null {
   const row = ProductModel.findById<ProductRowI>(id);
 
@@ -162,55 +148,23 @@ export function getProductById(id: number): Product | null {
   return mapToProduct(categoriesMap)(row);
 }
 
-export function updateProduct(
-  id: number,
-  data: Partial<ProductInput>
-): Product | null {
-  const existing = getProductById(id);
+export function updateProduct(id: number, data: ProductInput): Product | null {
+  const existing = ProductModel.findById<ProductRowI>(id);
   if (!existing) return null;
 
-  db.transaction((updateData: Partial<ProductInput>) => {
-    const name = updateData.name ?? existing.name;
-    const price = updateData.price ?? existing.price;
-    const oldPrice =
-      updateData.oldPrice !== undefined
-        ? updateData.oldPrice
-        : existing.oldPrice;
+  validateProductInput(data);
 
-    db.query(
-      `
-      UPDATE products SET 
-        name = ?, description = ?, image = ?, old_price = ?, 
-        discount = ?, price = ?, brand_id = ?, slug = ?, 
-        is_active = ?, is_new = ?
-      WHERE id = ?
-    `
-    ).run(
-      name,
-      updateData.description ?? existing.description,
-      updateData.image ?? existing.image,
-      oldPrice,
-      calculateDiscount(price, oldPrice),
-      price,
-      updateData.brandId !== undefined ? updateData.brandId : existing.brandId,
-      updateData.name ? slugify(updateData.name) : existing.slug,
-      updateData.isActive ?? (existing.isActive ? 1 : 0),
-      updateData.isNew ?? (existing.isNew ? 1 : 0),
-      id
-    );
+  const updatedProduct = ProductModel.updateProductWithCategories(
+    id,
+    mapToProductRow(data),
+    data?.categoryIds
+  );
 
-    if (updateData.categoryIds) {
-      db.query("DELETE FROM product_categories WHERE product_id = ?").run(id);
-      const insertStmt = db.prepare(
-        "INSERT INTO product_categories (product_id, category_id) VALUES (?, ?)"
-      );
-      for (const catId of updateData.categoryIds) {
-        insertStmt.run(id, catId);
-      }
-    }
-  })(data);
+  if (updatedProduct) {
+    return getProductById(id);
+  }
 
-  return getProductById(id);
+  return null;
 }
 
 export function deleteProduct(id: number): boolean {
@@ -218,10 +172,8 @@ export function deleteProduct(id: number): boolean {
 }
 
 export function getProductBySlug(slug: string): Product | null {
-  const row = ProductModel.findOne<ProductRowI>({ slug });
-  if (!row) return null;
-
-  const categoriesMap = ProductModel.findCategoriesByProductIds([row.id]);
-
-  return mapToProduct(categoriesMap)(row);
+  const product = ProductModel.findOne<ProductRowI>({ slug });
+  if (!product) return null;
+  const categoriesMap = ProductModel.findCategoriesByProductIds([product.id]);
+  return mapToProduct(categoriesMap)(product);
 }

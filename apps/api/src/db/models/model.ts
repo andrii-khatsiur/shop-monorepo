@@ -16,7 +16,7 @@ export abstract class Model {
 
   static create<T>(
     this: typeof Model & { tableName: string },
-    data: Omit<T, "id">
+    data: Omit<T, "id" | "created_at">
   ): T {
     const keys = Object.keys(data);
     const values = Object.values(data) as FieldValue[];

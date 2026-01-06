@@ -87,4 +87,53 @@ export class ProductModel extends Model {
     }
     return map;
   }
+
+  private static createProductCategories(
+    categoryIds: number[],
+    productId: number
+  ) {
+    if (categoryIds.length > 0) {
+      const insertStmt = this.db.prepare(
+        "INSERT INTO product_categories (product_id, category_id) VALUES (?, ?)"
+      );
+      for (const catId of categoryIds) {
+        insertStmt.run(productId, catId);
+      }
+    }
+  }
+
+  static createWithCategories(
+    input: Omit<ProductRowI, "id" | "created_at">,
+    categoryIds?: number[]
+  ): ProductRowI {
+    return this.db.transaction((row, catIds) => {
+      const product = this.create<ProductRowI>(row);
+
+      if (!product) throw new Error("Failed to create product");
+
+      this.createProductCategories(catIds, product.id);
+
+      return product;
+    })(input, categoryIds);
+  }
+
+  static updateProductWithCategories(
+    productId: number,
+    input: Omit<ProductRowI, "id" | "created_at">,
+    categoryIds?: number[]
+  ) {
+    return this.db.transaction((id, update, catIds) => {
+      const updatedProduct = this.update<ProductRowI>(id, update);
+
+      if (!updatedProduct) throw new Error("Failed to update product");
+
+      this.db
+        .query("DELETE FROM product_categories WHERE product_id = ?")
+        .run(id);
+
+      this.createProductCategories(catIds, updatedProduct.id);
+
+      return updatedProduct;
+    })(productId, input, categoryIds);
+  }
 }
