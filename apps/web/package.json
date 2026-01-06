@@ -2,7 +2,9 @@
   "name": "@apps/web",
   "type": "module",
   "scripts": {
-    "dev": "dotenv -e .env vinxi dev",
+    "dev": "dotenv -e .env bun run dev:parallel",
+    "dev:parallel": "cross-env vinxi dev & bun run open-browser",
+    "open-browser": "sleep 1 && open-cli http://localhost:${PORT:-3000}",
     "build": "dotenv -e .env vinxi build",
     "start": "dotenv -e .env vinxi start",
     "version": "vinxi version"
@@ -18,6 +20,8 @@
     "node": ">=22"
   },
   "devDependencies": {
-    "dotenv-cli": "^11.0.0"
+    "cross-env": "^10.1.0",
+    "dotenv-cli": "^11.0.0",
+    "open-cli": "^8.0.0"
   }
 }
