@@ -12,11 +12,13 @@
     "@ant-design/icons": "6.x",
     "antd": "^6.1.4",
     "react": "^19",
-    "react-dom": "^19"
+    "react-dom": "^19",
+    "react-router-dom": "^6.22.3"
   },
   "devDependencies": {
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/react-router-dom": "^5.3.3",
     "@types/bun": "latest"
   }
 }

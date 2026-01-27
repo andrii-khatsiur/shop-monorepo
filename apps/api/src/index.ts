@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { cors } from "hono/cors";
 import { apiRoutes } from "./routes/api.routes";
 import { requestLogger } from "./middleware/requestLogger";
 import { authMiddleware } from "./middleware/auth";
@@ -12,6 +13,16 @@ const main = async () => {
     const app = new Hono();
 
     app.onError(errorLogger);
+
+    const frontendUrl = Bun.env.FRONTEND_URL || "http://localhost:3100";
+
+    app.use(
+      "*",
+      cors({
+        origin: frontendUrl,
+        credentials: true,
+      })
+    );
 
     app.use("*", requestLogger);
 
