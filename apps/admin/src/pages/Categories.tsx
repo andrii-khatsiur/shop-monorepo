@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Table, Space, Button, message, Modal, Form, Input, Switch } from "antd";
 import type { TableProps } from "antd";
-import {
-  getCategories,
-  createCategory,
-  updateCategory,
-  deleteCategory,
-} from "../services/api";
+import { apiClient } from "../services/api";
 
 import type { Category, CategoryInput } from "@shop-monorepo/types";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
@@ -25,7 +20,7 @@ export const Categories: React.FC = () => {
   const fetchCategories = async () => {
     setLoading(true);
     try {
-      const data: Category[] = await getCategories();
+      const data: Category[] = await apiClient.categories.all();
       setCategories(data);
     } catch (error) {
       message.error("Не вдалося завантажити категорії.");
@@ -54,7 +49,7 @@ export const Categories: React.FC = () => {
 
   const handleDeleteCategory = async (id: number) => {
     try {
-      await deleteCategory(id);
+      await apiClient.categories.delete(id);
       message.success("Категорію успішно видалено!");
       fetchCategories();
     } catch (error: any) {
@@ -67,10 +62,10 @@ export const Categories: React.FC = () => {
     try {
       const values: CategoryInput = await form.validateFields();
       if (editingCategory) {
-        await updateCategory(editingCategory.id, values);
+        await apiClient.categories.update(editingCategory.id, values);
         message.success("Категорію успішно оновлено!");
       } else {
-        await createCategory(values);
+        await apiClient.categories.create(values);
         message.success("Категорію успішно створено!");
       }
       setModalVisible(false);

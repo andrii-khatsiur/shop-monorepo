@@ -3,12 +3,7 @@ import { Table, Space, Button, message, Modal, Form, Input, Switch } from "antd"
 import type { TableProps } from "antd";
 import type { Brand, BrandInput } from "@shop-monorepo/types";
 
-import {
-  getBrands,
-  createBrand,
-  updateBrand,
-  deleteBrand,
-} from "../services/api";
+import { apiClient } from "../services/api";
 
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { StatusIndicator } from "../components/StatusIndicator";
@@ -26,7 +21,7 @@ export const Brands: React.FC = () => {
   const fetchBrands = async () => {
     setLoading(true);
     try {
-      const data: Brand[] = await getBrands();
+      const data: Brand[] = await apiClient.brands.all();
       setBrands(data);
     } catch (error) {
       message.error("Не вдалося завантажити бренди.");
@@ -55,7 +50,7 @@ export const Brands: React.FC = () => {
 
   const handleDeleteBrand = async (id: number) => {
     try {
-      await deleteBrand(id);
+      await apiClient.brands.delete(id);
       message.success("Бренд успішно видалено!");
       fetchBrands();
     } catch (error: any) {
@@ -68,10 +63,10 @@ export const Brands: React.FC = () => {
     try {
       const values: BrandInput = await form.validateFields();
       if (editingBrand) {
-        await updateBrand(editingBrand.id, values);
+        await apiClient.brands.update(editingBrand.id, values);
         message.success("Бренд успішно оновлено!");
       } else {
-        await createBrand(values);
+        await apiClient.brands.create(values);
         message.success("Бренд успішно створено!");
       }
       setModalVisible(false);

@@ -12,14 +12,7 @@ import {
   Select,
 } from "antd";
 import type { TableProps } from "antd";
-import {
-  getProducts,
-  createProduct,
-  updateProduct,
-  deleteProduct,
-  getBrands,
-  getCategories,
-} from "../services/api";
+import { apiClient } from "../services/api";
 import type {
   Product,
   PaginatedProducts,
@@ -52,7 +45,7 @@ export const Products: React.FC = () => {
   const fetchProducts = async (page: number, limit: number) => {
     setLoading(true);
     try {
-      const data: PaginatedProducts = await getProducts(page, limit);
+      const data: PaginatedProducts = await apiClient.products.all(page, limit);
       setProducts(data.hits);
       setPagination((prev) => ({
         ...prev,
@@ -71,8 +64,8 @@ export const Products: React.FC = () => {
   const fetchBrandsAndCategories = async () => {
     try {
       const [brandsData, categoriesData] = await Promise.all([
-        getBrands(),
-        getCategories(),
+        apiClient.brands.all(),
+        apiClient.categories.all(),
       ]);
       setBrands(brandsData);
       setCategories(categoriesData);
@@ -114,7 +107,7 @@ export const Products: React.FC = () => {
 
   const handleDeleteProduct = async (id: number) => {
     try {
-      await deleteProduct(id);
+      await apiClient.products.delete(id);
       message.success("Продукт успішно видалено!");
       fetchProducts(pagination.current, pagination.pageSize);
     } catch (error: any) {
@@ -132,10 +125,10 @@ export const Products: React.FC = () => {
       values.isNew = values.isNew ?? false;
 
       if (editingProduct) {
-        await updateProduct(editingProduct.id, values);
+        await apiClient.products.update(editingProduct.id, values);
         message.success("Продукт успішно оновлено!");
       } else {
-        await createProduct(values);
+        await apiClient.products.create(values);
         message.success("Продукт успішно створено!");
       }
       setModalVisible(false);
