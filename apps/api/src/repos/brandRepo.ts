@@ -1,17 +1,6 @@
 import { BrandModel, BrandRowI } from "../db/models/BrandModel";
 import { slugify } from "../utils/common";
-
-export interface Brand {
-  id: number;
-  name: string;
-  slug: string;
-  isActive: boolean;
-}
-
-interface BrandDto {
-  name: string;
-  isActive: boolean;
-}
+import type { Brand, BrandInput } from "@shop-monorepo/types";
 
 const mapRowToBrand = (row: BrandRowI): Brand => ({
   id: row.id,
@@ -20,13 +9,13 @@ const mapRowToBrand = (row: BrandRowI): Brand => ({
   isActive: Boolean(row.is_active),
 });
 
-const mapBrandToRow = (brand: BrandDto): Omit<BrandRowI, "id"> => ({
+const mapBrandToRow = (brand: BrandInput): Omit<BrandRowI, "id"> => ({
   name: brand.name,
   slug: slugify(brand.name),
   is_active: brand.isActive ? 1 : 0,
 });
 
-export function createBrand(data: BrandDto): Brand {
+export function createBrand(data: BrandInput): Brand {
   const input = mapBrandToRow(data);
   try {
     const brand = BrandModel.create<BrandRowI>(input);
@@ -52,7 +41,7 @@ export function getBrandBySlug(slug: string): Brand | null {
   return brand ? mapRowToBrand(brand) : null;
 }
 
-export function updateBrand(id: number, data: BrandDto): Brand | null {
+export function updateBrand(id: number, data: BrandInput): Brand | null {
   const existing = BrandModel.findById<BrandRowI>(id);
   if (!existing) return null;
 

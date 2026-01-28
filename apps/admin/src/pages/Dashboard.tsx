@@ -1,5 +1,5 @@
 import React from "react";
 
 export const Dashboard: React.FC = () => {
-  return <div>Dashboard Page</div>;
+  return <div>Панель управління</div>;
 };

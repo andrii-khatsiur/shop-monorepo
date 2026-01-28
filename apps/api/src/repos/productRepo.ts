@@ -2,70 +2,11 @@ import { calculateDiscount, slugify } from "../utils/common";
 import { ProductModel, ProductRowI } from "../db/models/ProductModel";
 import { BrandModel, BrandRowI } from "../db/models/BrandModel";
 import { CategoryModel, CategoryRowI } from "../db/models/CategoryModel ";
-
-export interface Product {
-  id: number;
-  name: string;
-  description: string;
-  image: string;
-  oldPrice: number | null;
-  discount: number | null;
-  price: number;
-  brandId: number | null;
-  slug: string;
-  isActive: boolean;
-  isNew: boolean;
-  createdAt: string;
-  categoryIds: number[];
-}
-
-interface ProductInput {
-  name: string;
-  description: string;
-  image: string;
-  price: number;
-  oldPrice?: number | null;
-  brandId?: number | null;
-  isActive?: boolean;
-  isNew?: boolean;
-  categoryIds?: number[];
-}
-
-const mapToProduct =
-  (categoriesMap: Record<number, number[]>) =>
-  (row: ProductRowI): Product => ({
-    id: row.id,
-    name: row.name,
-    description: row.description,
-    image: row.image,
-    oldPrice: row.old_price,
-    discount: row.discount,
-    price: row.price,
-    brandId: row.brand_id,
-    slug: row.slug,
-    isActive: !!row.is_active,
-    isNew: !!row.is_new,
-    createdAt: row.created_at,
-    categoryIds: categoriesMap[row.id] ?? [],
-  });
-
-const mapToProductRow = (input: ProductInput) => ({
-  name: input.name,
-  description: input.description,
-  image: input.image,
-  old_price: input.oldPrice ?? null,
-  discount: calculateDiscount(input.price, input.oldPrice),
-  price: input.price,
-  brand_id: input.brandId ?? null,
-  slug: slugify(input.name),
-  is_active: input.isActive ? 1 : 0,
-  is_new: input.isNew ? 1 : 0,
-});
-
-export interface PaginatedProducts {
-  hits: Product[];
-  total: number;
-}
+import type {
+  Product,
+  ProductInput,
+  PaginatedProducts,
+} from "@shop-monorepo/types";
 
 const validateProductInput = (data: ProductInput) => {
   if (data.brandId) {
@@ -86,6 +27,37 @@ const validateProductInput = (data: ProductInput) => {
     }
   }
 };
+
+const mapToProductRow = (input: ProductInput) => ({
+  name: input.name,
+  description: input.description,
+  image: input.image,
+  old_price: input.oldPrice ?? null,
+  discount: calculateDiscount(input.price, input.oldPrice),
+  price: input.price,
+  brand_id: input.brandId ?? null,
+  slug: slugify(input.name),
+  is_active: input.isActive ? 1 : 0,
+  is_new: input.isNew ? 1 : 0,
+});
+
+const mapToProduct =
+  (categoriesMap: Record<number, number[]>) =>
+  (row: ProductRowI): Product => ({
+    id: row.id,
+    name: row.name,
+    description: row.description,
+    image: row.image,
+    oldPrice: row.old_price,
+    discount: row.discount,
+    price: row.price,
+    brandId: row.brand_id,
+    slug: row.slug,
+    isActive: !!row.is_active,
+    isNew: !!row.is_new,
+    createdAt: row.created_at,
+    categoryIds: categoriesMap[row.id] ?? [],
+  });
 
 export function createProduct(data: ProductInput): Product | null {
   validateProductInput(data);

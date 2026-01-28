@@ -37,7 +37,7 @@ export const OAuthCallback: React.FC = () => {
         indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />}
         size="large"
       />
-      <Text style={{ marginTop: 20 }}>Authenticating...</Text>
+      <Text style={{ marginTop: 20 }}>Аутентифікація...</Text>
     </div>
   );
 };

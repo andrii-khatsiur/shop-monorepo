@@ -18,9 +18,9 @@ export const LoginPage: React.FC = () => {
     >
       <Card
         style={{ width: 400, textAlign: "center" }}
-        title={<Title level={3}>Admin Login</Title>}
+        title={<Title level={3}>Вхід адміністратора</Title>}
       >
-        <Text>Please sign in with your Google account to access the admin panel.</Text>
+        <Text>Будь ласка, увійдіть за допомогою свого облікового запису Google, щоб отримати доступ до панелі адміністратора.</Text>
         <Button
           type="primary"
           icon={<GoogleOutlined />}
@@ -28,7 +28,7 @@ export const LoginPage: React.FC = () => {
           style={{ marginTop: 24 }}
           block
         >
-          Sign in with Google
+          Увійти за допомогою Google
         </Button>
       </Card>
     </Flex>

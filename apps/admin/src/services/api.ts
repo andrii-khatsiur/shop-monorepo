@@ -1,60 +1,16 @@
+import type {
+  Brand,
+  Category,
+  Product,
+  PaginatedProducts,
+  ProductInput,
+  BrandInput,
+  CategoryInput,
+} from "@shop-monorepo/types";
+
 import { getAuthToken } from "./auth";
 
 const API_BASE_URL = "http://localhost:3000/api";
-
-// Define types based on the OpenAPI specification
-export interface Product {
-  id: number;
-  name: string;
-  description: string;
-  image: string;
-  oldPrice: number | null;
-  discount: number | null;
-  price: number;
-  brandId: number | null;
-  slug: string;
-  isActive: boolean;
-  isNew: boolean;
-  createdAt: string;
-  categoryIds: number[];
-}
-
-export interface ProductInput {
-  name: string;
-  description: string;
-  image: string;
-  price: number;
-  oldPrice?: number | null;
-  brandId?: number | null;
-  isActive?: boolean;
-  isNew?: boolean;
-  categoryIds?: number[];
-}
-
-export interface PaginatedProducts {
-  hits: Product[];
-  total: number;
-}
-
-export interface Brand {
-  id: number;
-  name: string;
-  slug: string;
-}
-
-export interface BrandInput {
-  name: string;
-}
-
-export interface Category {
-  id: number;
-  name: string;
-  slug: string;
-}
-
-export interface CategoryInput {
-  name: string;
-}
 
 // API service functions
 async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {

@@ -26,9 +26,11 @@ import type {
   ProductInput,
   Brand,
   Category,
-} from "../services/api";
+} from "@shop-monorepo/types";
 
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { StatusIndicator } from "@/components/StatusIndicator";
+import { RightAlignedSpace } from "../components/RightAlignedSpace";
 
 interface DataType extends Product {}
 
@@ -59,7 +61,7 @@ export const Products: React.FC = () => {
         pageSize: limit,
       }));
     } catch (error) {
-      message.error("Failed to fetch products.");
+      message.error("Не вдалося завантажити продукти.");
       console.error("Failed to fetch products:", error);
     } finally {
       setLoading(false);
@@ -75,7 +77,7 @@ export const Products: React.FC = () => {
       setBrands(brandsData);
       setCategories(categoriesData);
     } catch (error) {
-      message.error("Failed to fetch brands or categories.");
+      message.error("Не вдалося завантажити бренди або категорії.");
       console.error("Failed to fetch brands or categories:", error);
     }
   };
@@ -113,10 +115,10 @@ export const Products: React.FC = () => {
   const handleDeleteProduct = async (id: number) => {
     try {
       await deleteProduct(id);
-      message.success("Product deleted successfully!");
+      message.success("Продукт успішно видалено!");
       fetchProducts(pagination.current, pagination.pageSize);
     } catch (error: any) {
-      message.error(`Failed to delete product: ${error.message}`);
+      message.error(`Не вдалося видалити продукт: ${error.message}`);
       console.error("Failed to delete product:", error);
     }
   };
@@ -131,64 +133,55 @@ export const Products: React.FC = () => {
 
       if (editingProduct) {
         await updateProduct(editingProduct.id, values);
-        message.success("Product updated successfully!");
+        message.success("Продукт успішно оновлено!");
       } else {
         await createProduct(values);
-        message.success("Product created successfully!");
+        message.success("Продукт успішно створено!");
       }
       setModalVisible(false);
       fetchProducts(pagination.current, pagination.pageSize);
     } catch (error: any) {
-      message.error(`Failed to save product: ${error.message}`);
+      message.error(`Не вдалося зберегти продукт: ${error.message}`);
       console.error("Failed to save product:", error);
     }
   };
 
   const columns: TableProps<DataType>["columns"] = [
     {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
-    },
-    {
-      title: "Name",
+      title: "Назва",
       dataIndex: "name",
       key: "name",
     },
     {
-      title: "Slug",
-      dataIndex: "slug",
-      key: "slug",
-    },
-    {
-      title: "Price",
+      title: "Ціна",
       dataIndex: "price",
       key: "price",
     },
     {
-      title: "Brand",
+      title: "Бренд",
       dataIndex: "brandId",
       key: "brandId",
       render: (brandId: number) =>
-        brands.find((brand) => brand.id === brandId)?.name || "N/A",
+        brands.find((brand) => brand.id === brandId)?.name || "Немає",
     },
     {
-      title: "Active",
+      title: "Активний",
       dataIndex: "isActive",
       key: "isActive",
-      render: (isActive: boolean) => (isActive ? "Yes" : "No"),
+      render: (isActive: boolean) => <StatusIndicator isActive={isActive} />,
     },
     {
-      title: "New",
+      title: "Новий",
       dataIndex: "isNew",
       key: "isNew",
-      render: (isNew: boolean) => (isNew ? "Yes" : "No"),
+      render: (isNew: boolean) => <StatusIndicator isActive={isNew} />,
     },
     {
-      title: "Action",
+      title: "Дія",
       key: "action",
+      align: 'right', // Align header text to right
       render: (_, record) => (
-        <Space size="middle">
+        <RightAlignedSpace size="middle">
           <Button
             icon={<EditOutlined />}
             onClick={() => handleEditProduct(record)}
@@ -198,7 +191,7 @@ export const Products: React.FC = () => {
             danger
             onClick={() => handleDeleteProduct(record.id)}
           />
-        </Space>
+        </RightAlignedSpace>
       ),
     },
   ];
@@ -211,7 +204,7 @@ export const Products: React.FC = () => {
           icon={<PlusOutlined />}
           onClick={handleAddProduct}
         >
-          Add Product
+          Додати продукт
         </Button>
       </Space>
       <Table
@@ -229,50 +222,50 @@ export const Products: React.FC = () => {
       />
 
       <Modal
-        title={editingProduct ? "Edit Product" : "Add Product"}
+        title={editingProduct ? "Редагувати продукт" : "Додати продукт"}
         open={modalVisible}
         onOk={handleModalOk}
         onCancel={() => setModalVisible(false)}
-        okText="Save"
-        cancelText="Cancel"
+        okText="Зберегти"
+        cancelText="Скасувати"
       >
         <Form form={form} layout="vertical">
           <Form.Item
             name="name"
-            label="Name"
-            rules={[{ required: true, message: "Please enter product name" }]}
+            label="Назва"
+            rules={[{ required: true, message: "Будь ласка, введіть назву продукту" }]}
           >
             <Input />
           </Form.Item>
           <Form.Item
             name="description"
-            label="Description"
+            label="Опис"
             rules={[
-              { required: true, message: "Please enter product description" },
+              { required: true, message: "Будь ласка, введіть опис продукту" },
             ]}
           >
             <Input.TextArea />
           </Form.Item>
           <Form.Item
             name="image"
-            label="Image URL"
-            rules={[{ required: true, message: "Please enter image URL" }]}
+            label="URL зображення"
+            rules={[{ required: true, message: "Будь ласка, введіть URL зображення" }]}
           >
             <Input />
           </Form.Item>
           <Form.Item
             name="price"
-            label="Price"
-            rules={[{ required: true, message: "Please enter product price" }]}
+            label="Ціна"
+            rules={[{ required: true, message: "Будь ласка, введіть ціну продукту" }]}
           >
             <InputNumber min={0} style={{ width: "100%" }} />
           </Form.Item>
-          <Form.Item name="oldPrice" label="Old Price">
+          <Form.Item name="oldPrice" label="Стара ціна">
             <InputNumber min={0} style={{ width: "100%" }} />
           </Form.Item>
-          <Form.Item name="brandId" label="Brand">
+          <Form.Item name="brandId" label="Бренд">
             <Select
-              placeholder="Select a brand"
+              placeholder="Виберіть бренд"
               allowClear
               options={brands.map((brand) => ({
                 label: brand.name,
@@ -280,10 +273,10 @@ export const Products: React.FC = () => {
               }))}
             />
           </Form.Item>
-          <Form.Item name="categoryIds" label="Categories">
+          <Form.Item name="categoryIds" label="Категорії">
             <Select
               mode="multiple"
-              placeholder="Select categories"
+              placeholder="Виберіть категорії"
               allowClear
               options={categories.map((category) => ({
                 label: category.name,
@@ -291,10 +284,10 @@ export const Products: React.FC = () => {
               }))}
             />
           </Form.Item>
-          <Form.Item name="isActive" label="Active" valuePropName="checked">
+          <Form.Item name="isActive" label="Активний" valuePropName="checked">
             <Switch />
           </Form.Item>
-          <Form.Item name="isNew" label="New" valuePropName="checked">
+          <Form.Item name="isNew" label="Новий" valuePropName="checked">
             <Switch />
           </Form.Item>
         </Form>

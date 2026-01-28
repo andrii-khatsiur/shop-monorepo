@@ -1,13 +1,7 @@
 import { slugify } from "../utils/common";
 
 import { CategoryModel, CategoryRowI } from "../db/models/CategoryModel ";
-
-export interface Category {
-  id: number;
-  name: string;
-  slug: string;
-  isActive: boolean;
-}
+import type { Category } from "@shop-monorepo/types";
 
 interface CategoryDto {
   name: string;

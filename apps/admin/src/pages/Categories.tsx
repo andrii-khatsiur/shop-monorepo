@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Table, Space, Button, message, Modal, Form, Input } from "antd";
+import { Table, Space, Button, message, Modal, Form, Input, Switch } from "antd";
 import type { TableProps } from "antd";
 import {
   getCategories,
@@ -7,8 +7,11 @@ import {
   updateCategory,
   deleteCategory,
 } from "../services/api";
-import type { Category, CategoryInput } from "../services/api";
+
+import type { Category, CategoryInput } from "@shop-monorepo/types";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { StatusIndicator } from "../components/StatusIndicator";
+import { RightAlignedSpace } from "../components/RightAlignedSpace";
 
 interface DataType extends Category {}
 
@@ -25,7 +28,7 @@ export const Categories: React.FC = () => {
       const data: Category[] = await getCategories();
       setCategories(data);
     } catch (error) {
-      message.error("Failed to fetch categories.");
+      message.error("Не вдалося завантажити категорії.");
       console.error("Failed to fetch categories:", error);
     } finally {
       setLoading(false);
@@ -39,6 +42,7 @@ export const Categories: React.FC = () => {
   const handleAddCategory = () => {
     setEditingCategory(null);
     form.resetFields();
+    form.setFieldsValue({ isActive: true }); // Set default for new category
     setModalVisible(true);
   };
 
@@ -51,10 +55,10 @@ export const Categories: React.FC = () => {
   const handleDeleteCategory = async (id: number) => {
     try {
       await deleteCategory(id);
-      message.success("Category deleted successfully!");
+      message.success("Категорію успішно видалено!");
       fetchCategories();
     } catch (error: any) {
-      message.error(`Failed to delete category: ${error.message}`);
+      message.error(`Не вдалося видалити категорію: ${error.message}`);
       console.error("Failed to delete category:", error);
     }
   };
@@ -64,40 +68,37 @@ export const Categories: React.FC = () => {
       const values: CategoryInput = await form.validateFields();
       if (editingCategory) {
         await updateCategory(editingCategory.id, values);
-        message.success("Category updated successfully!");
+        message.success("Категорію успішно оновлено!");
       } else {
         await createCategory(values);
-        message.success("Category created successfully!");
+        message.success("Категорію успішно створено!");
       }
       setModalVisible(false);
       fetchCategories();
     } catch (error: any) {
-      message.error(`Failed to save category: ${error.message}`);
+      message.error(`Не вдалося зберегти категорію: ${error.message}`);
       console.error("Failed to save category:", error);
     }
   };
 
   const columns: TableProps<DataType>["columns"] = [
     {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
-    },
-    {
-      title: "Name",
+      title: "Назва",
       dataIndex: "name",
       key: "name",
     },
     {
-      title: "Slug",
-      dataIndex: "slug",
-      key: "slug",
+      title: "Статус",
+      dataIndex: "isActive",
+      key: "isActive",
+      render: (isActive: boolean) => <StatusIndicator isActive={isActive} />,
     },
     {
-      title: "Action",
+      title: "Дія",
       key: "action",
+      align: 'right', // Align header text to right
       render: (_, record) => (
-        <Space size="middle">
+        <RightAlignedSpace size="middle">
           <Button
             icon={<EditOutlined />}
             onClick={() => handleEditCategory(record)}
@@ -107,7 +108,7 @@ export const Categories: React.FC = () => {
             danger
             onClick={() => handleDeleteCategory(record.id)}
           />
-        </Space>
+        </RightAlignedSpace>
       ),
     },
   ];
@@ -120,7 +121,7 @@ export const Categories: React.FC = () => {
           icon={<PlusOutlined />}
           onClick={handleAddCategory}
         >
-          Add Category
+          Додати категорію
         </Button>
       </Space>
       <Table
@@ -132,20 +133,23 @@ export const Categories: React.FC = () => {
       />
 
       <Modal
-        title={editingCategory ? "Edit Category" : "Add Category"}
+        title={editingCategory ? "Редагувати категорію" : "Додати категорію"}
         open={modalVisible}
         onOk={handleModalOk}
         onCancel={() => setModalVisible(false)}
-        okText="Save"
-        cancelText="Cancel"
+        okText="Зберегти"
+        cancelText="Скасувати"
       >
         <Form form={form} layout="vertical">
           <Form.Item
             name="name"
-            label="Name"
-            rules={[{ required: true, message: "Please enter category name" }]}
+            label="Назва"
+            rules={[{ required: true, message: "Будь ласка, введіть назву категорії" }]}
           >
             <Input />
+          </Form.Item>
+          <Form.Item name="isActive" label="Активний" valuePropName="checked">
+            <Switch />
           </Form.Item>
         </Form>
       </Modal>

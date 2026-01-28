@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { Table, Space, Button, message, Modal, Form, Input } from "antd";
+import { Table, Space, Button, message, Modal, Form, Input, Switch } from "antd";
 import type { TableProps } from "antd";
+import type { Brand, BrandInput } from "@shop-monorepo/types";
+
 import {
   getBrands,
   createBrand,
   updateBrand,
   deleteBrand,
 } from "../services/api";
-import type { Brand, BrandInput } from "../services/api";
+
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { StatusIndicator } from "../components/StatusIndicator";
+import { RightAlignedSpace } from "../components/RightAlignedSpace";
 
 interface DataType extends Brand {}
 
@@ -25,7 +29,7 @@ export const Brands: React.FC = () => {
       const data: Brand[] = await getBrands();
       setBrands(data);
     } catch (error) {
-      message.error("Failed to fetch brands.");
+      message.error("Не вдалося завантажити бренди.");
       console.error("Failed to fetch brands:", error);
     } finally {
       setLoading(false);
@@ -39,6 +43,7 @@ export const Brands: React.FC = () => {
   const handleAddBrand = () => {
     setEditingBrand(null);
     form.resetFields();
+    form.setFieldsValue({ isActive: true }); // Set default for new brand
     setModalVisible(true);
   };
 
@@ -51,10 +56,10 @@ export const Brands: React.FC = () => {
   const handleDeleteBrand = async (id: number) => {
     try {
       await deleteBrand(id);
-      message.success("Brand deleted successfully!");
+      message.success("Бренд успішно видалено!");
       fetchBrands();
     } catch (error: any) {
-      message.error(`Failed to delete brand: ${error.message}`);
+      message.error(`Не вдалося видалити бренд: ${error.message}`);
       console.error("Failed to delete brand:", error);
     }
   };
@@ -64,40 +69,37 @@ export const Brands: React.FC = () => {
       const values: BrandInput = await form.validateFields();
       if (editingBrand) {
         await updateBrand(editingBrand.id, values);
-        message.success("Brand updated successfully!");
+        message.success("Бренд успішно оновлено!");
       } else {
         await createBrand(values);
-        message.success("Brand created successfully!");
+        message.success("Бренд успішно створено!");
       }
       setModalVisible(false);
       fetchBrands();
     } catch (error: any) {
-      message.error(`Failed to save brand: ${error.message}`);
+      message.error(`Не вдалося зберегти бренд: ${error.message}`);
       console.error("Failed to save brand:", error);
     }
   };
 
   const columns: TableProps<DataType>["columns"] = [
     {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
-    },
-    {
-      title: "Name",
+      title: "Назва",
       dataIndex: "name",
       key: "name",
     },
     {
-      title: "Slug",
-      dataIndex: "slug",
-      key: "slug",
+      title: "Статус",
+      dataIndex: "isActive",
+      key: "isActive",
+      render: (isActive: boolean) => <StatusIndicator isActive={isActive} />,
     },
     {
-      title: "Action",
+      title: "Дія",
       key: "action",
+      align: 'right', // Align header text to right
       render: (_, record) => (
-        <Space size="middle">
+        <RightAlignedSpace size="middle">
           <Button
             icon={<EditOutlined />}
             onClick={() => handleEditBrand(record)}
@@ -107,7 +109,7 @@ export const Brands: React.FC = () => {
             danger
             onClick={() => handleDeleteBrand(record.id)}
           />
-        </Space>
+        </RightAlignedSpace>
       ),
     },
   ];
@@ -116,7 +118,7 @@ export const Brands: React.FC = () => {
     <div>
       <Space style={{ marginBottom: 16 }}>
         <Button type="primary" icon={<PlusOutlined />} onClick={handleAddBrand}>
-          Add Brand
+          Додати бренд
         </Button>
       </Space>
       <Table
@@ -128,20 +130,23 @@ export const Brands: React.FC = () => {
       />
 
       <Modal
-        title={editingBrand ? "Edit Brand" : "Add Brand"}
+        title={editingBrand ? "Редагувати бренд" : "Додати бренд"}
         open={modalVisible}
         onOk={handleModalOk}
         onCancel={() => setModalVisible(false)}
-        okText="Save"
-        cancelText="Cancel"
+        okText="Зберегти"
+        cancelText="Скасувати"
       >
         <Form form={form} layout="vertical">
           <Form.Item
             name="name"
-            label="Name"
-            rules={[{ required: true, message: "Please enter brand name" }]}
+            label="Назва"
+            rules={[{ required: true, message: "Будь ласка, введіть назву бренду" }]}
           >
             <Input />
+          </Form.Item>
+          <Form.Item name="isActive" label="Активний" valuePropName="checked">
+            <Switch />
           </Form.Item>
         </Form>
       </Modal>

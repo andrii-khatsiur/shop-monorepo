@@ -40,22 +40,22 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({
             {
               key: "/",
               icon: <DashboardOutlined />,
-              label: <Link to="/">Dashboard</Link>,
+              label: <Link to="/">Панель управління</Link>,
             },
             {
               key: "/products",
               icon: <ShoppingOutlined />,
-              label: <Link to="/products">Products</Link>,
+              label: <Link to="/products">Продукти</Link>,
             },
             {
               key: "/brands",
               icon: <TagOutlined />,
-              label: <Link to="/brands">Brands</Link>,
+              label: <Link to="/brands">Бренди</Link>,
             },
             {
               key: "/categories",
               icon: <AppstoreOutlined />,
-              label: <Link to="/categories">Categories</Link>,
+              label: <Link to="/categories">Категорії</Link>,
             },
           ]}
         />
