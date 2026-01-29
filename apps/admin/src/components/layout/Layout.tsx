@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -10,7 +10,8 @@ import {
   LogoutOutlined,
 } from "@ant-design/icons";
 import { Button, Layout, Menu, theme, Flex } from "antd";
-import { removeAuthToken } from "./services/auth";
+import { isAuthenticated, removeAuthToken } from "../../services/auth";
+import { ROUTES } from "../../routes/routes";
 
 const { Header, Sider, Content } = Layout;
 
@@ -25,8 +26,12 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({
 
   const handleLogout = () => {
     removeAuthToken();
-    navigate("/login");
+    navigate(ROUTES.LOGIN);
   };
+
+  if (!isAuthenticated()) {
+    return <Navigate to={ROUTES.LOGIN} />;
+  }
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -35,27 +40,27 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({
         <Menu
           theme="dark"
           mode="inline"
-          defaultSelectedKeys={["/"]}
+          defaultSelectedKeys={[ROUTES.DASHBOARD]}
           items={[
             {
-              key: "/",
+              key: ROUTES.DASHBOARD,
               icon: <DashboardOutlined />,
-              label: <Link to="/">Панель управління</Link>,
+              label: <Link to={ROUTES.DASHBOARD}>Панель управління</Link>,
             },
             {
-              key: "/products",
+              key: ROUTES.PRODUCTS,
               icon: <ShoppingOutlined />,
-              label: <Link to="/products">Продукти</Link>,
+              label: <Link to={ROUTES.PRODUCTS}>Продукти</Link>,
             },
             {
-              key: "/brands",
+              key: ROUTES.BRANDS,
               icon: <TagOutlined />,
-              label: <Link to="/brands">Бренди</Link>,
+              label: <Link to={ROUTES.BRANDS}>Бренди</Link>,
             },
             {
-              key: "/categories",
+              key: ROUTES.CATEGORIES,
               icon: <AppstoreOutlined />,
-              label: <Link to="/categories">Категорії</Link>,
+              label: <Link to={ROUTES.CATEGORIES}>Категорії</Link>,
             },
           ]}
         />

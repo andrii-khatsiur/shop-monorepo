@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { setAuthToken } from "../services/auth";
 import { Spin, Typography } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
+import { ROUTES } from "../routes/routes";
 
 const { Text } = Typography;
 
@@ -16,10 +17,10 @@ export const OAuthCallback: React.FC = () => {
 
     if (token) {
       setAuthToken(token);
-      navigate("/"); // Redirect to dashboard or home page
+      navigate(ROUTES.DASHBOARD); // Redirect to dashboard or home page
     } else {
       // Handle error, e.g., show an error message and redirect to login
-      navigate("/login?error=auth_failed");
+      navigate(`${ROUTES.LOGIN}?error=auth_failed`);
     }
   }, [location, navigate]);
 
