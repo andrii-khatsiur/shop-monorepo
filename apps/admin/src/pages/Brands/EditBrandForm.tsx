@@ -1,35 +1,26 @@
-import React, { useState } from "react";
-import { message } from "antd";
+import React from "react";
 import { BrandForm } from "./BrandForm";
-import { apiClient } from "../../services/api";
 import type { Brand, BrandInput } from "@shop-monorepo/types";
 import { useModal } from "../../context/ModalContext";
+import { useUpdateBrand } from "../../hooks/useBrandQueries";
 
 interface EditBrandFormProps {
   brand: Brand;
-  onSuccess: () => void;
 }
 
-export const EditBrandForm: React.FC<EditBrandFormProps> = ({
-  brand,
-  onSuccess,
-}) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+export const EditBrandForm: React.FC<EditBrandFormProps> = ({ brand }) => {
   const { closeModal } = useModal();
+  const { mutate: updateBrand, isPending: isSubmitting } = useUpdateBrand();
 
   const handleSubmit = async (values: BrandInput) => {
-    setIsSubmitting(true);
-    try {
-      await apiClient.brands.update(brand.id, values);
-      message.success("Бренд успішно оновлено!");
-      onSuccess();
-      closeModal();
-    } catch (error: any) {
-      message.error(`Не вдалося оновити бренд: ${error.message}`);
-      console.error("Failed to update brand:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
+    updateBrand(
+      { id: brand.id, brand: values },
+      {
+        onSuccess: () => {
+          closeModal();
+        },
+      }
+    );
   };
 
   return (

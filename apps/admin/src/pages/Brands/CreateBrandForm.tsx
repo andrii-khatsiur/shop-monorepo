@@ -1,33 +1,19 @@
-import React, { useState } from "react";
-import { message } from "antd";
+import React from "react";
 import { BrandForm } from "./BrandForm";
-import { apiClient } from "../../services/api";
 import type { BrandInput } from "@shop-monorepo/types";
 import { useModal } from "../../context/ModalContext";
+import { useCreateBrand } from "../../hooks/useBrandQueries";
 
-interface CreateBrandFormProps {
-  onSuccess: () => void;
-}
-
-export const CreateBrandForm: React.FC<CreateBrandFormProps> = ({
-  onSuccess,
-}) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+export const CreateBrandForm: React.FC = () => {
   const { closeModal } = useModal();
+  const { mutate: createBrand, isPending: isSubmitting } = useCreateBrand();
 
   const handleSubmit = async (values: BrandInput) => {
-    setIsSubmitting(true);
-    try {
-      await apiClient.brands.create(values);
-      message.success("Бренд успішно створено!");
-      onSuccess();
-      closeModal();
-    } catch (error: any) {
-      message.error(`Не вдалося створити бренд: ${error.message}`);
-      console.error("Failed to create brand:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
+    createBrand(values, {
+      onSuccess: () => {
+        closeModal();
+      },
+    });
   };
 
   return <BrandForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />;

@@ -1,50 +1,26 @@
-import React, { useEffect, useState } from "react";
-import { Table, Space, Button, message } from "antd";
+import { Table, Space, Button } from "antd";
 import type { TableProps } from "antd";
 import type { Brand } from "@shop-monorepo/types";
 
-import { apiClient } from "../../services/api";
 import { useModal } from "../../context/ModalContext";
+import { useBrands, useDeleteBrand } from "../../hooks/useBrandQueries";
 
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import { StatusIndicator } from "../../components/StatusIndicator"; // Assuming StatusIndicator is not moved
-import { RightAlignedSpace } from "../../components/RightAlignedSpace"; // Assuming RightAlignedSpace is not moved
+import { StatusIndicator } from "../../components/StatusIndicator";
+import { RightAlignedSpace } from "../../components/RightAlignedSpace";
 
 import { CreateBrandForm } from "./CreateBrandForm";
 import { EditBrandForm } from "./EditBrandForm";
 
-interface DataType extends Brand {}
-
 export const BrandsPage: React.FC = () => {
-  const [brands, setBrands] = useState<Brand[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
   const { openModal } = useModal();
-
-  const fetchBrands = async () => {
-    setLoading(true);
-    try {
-      const data: Brand[] = await apiClient.brands.all();
-      setBrands(data);
-    } catch (error) {
-      message.error("Не вдалося завантажити бренди.");
-      console.error("Failed to fetch brands:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchBrands();
-  }, []);
-
-  const handleFormSuccess = () => {
-    fetchBrands();
-  };
+  const { data: brands, isLoading } = useBrands();
+  const { mutate: deleteBrand } = useDeleteBrand();
 
   const showCreateBrandModal = () => {
     openModal({
       title: "Додати бренд",
-      content: <CreateBrandForm onSuccess={handleFormSuccess} />,
+      content: <CreateBrandForm />,
       footer: null,
     });
   };
@@ -52,23 +28,16 @@ export const BrandsPage: React.FC = () => {
   const showEditBrandModal = (brand: Brand) => {
     openModal({
       title: "Редагувати бренд",
-      content: <EditBrandForm brand={brand} onSuccess={handleFormSuccess} />,
+      content: <EditBrandForm brand={brand} />,
       footer: null,
     });
   };
 
   const handleDeleteBrand = async (id: number) => {
-    try {
-      await apiClient.brands.delete(id);
-      message.success("Бренд успішно видалено!");
-      fetchBrands();
-    } catch (error: any) {
-      message.error(`Не вдалося видалити бренд: ${error.message}`);
-      console.error("Failed to delete brand:", error);
-    }
+    deleteBrand(id);
   };
 
-  const columns: TableProps<DataType>["columns"] = [
+  const columns: TableProps<Brand>["columns"] = [
     {
       title: "Назва",
       dataIndex: "name",
@@ -113,9 +82,9 @@ export const BrandsPage: React.FC = () => {
       </Space>
       <Table
         columns={columns}
-        dataSource={brands}
+        dataSource={brands || []}
         rowKey="id"
-        loading={loading}
+        loading={isLoading}
         pagination={false}
       />
     </div>

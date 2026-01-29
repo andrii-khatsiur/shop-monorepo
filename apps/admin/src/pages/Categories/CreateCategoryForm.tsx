@@ -1,33 +1,20 @@
-import React, { useState } from "react";
-import { message } from "antd";
+import React from "react";
 import { CategoryForm } from "./CategoryForm";
-import { apiClient } from "../../services/api";
 import type { CategoryInput } from "@shop-monorepo/types";
 import { useModal } from "../../context/ModalContext";
+import { useCreateCategory } from "../../hooks/useCategoryQueries";
 
-interface CreateCategoryFormProps {
-  onSuccess: () => void;
-}
-
-export const CreateCategoryForm: React.FC<CreateCategoryFormProps> = ({
-  onSuccess,
-}) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+export const CreateCategoryForm: React.FC = () => {
   const { closeModal } = useModal();
+  const { mutate: createCategory, isPending: isSubmitting } =
+    useCreateCategory();
 
   const handleSubmit = async (values: CategoryInput) => {
-    setIsSubmitting(true);
-    try {
-      await apiClient.categories.create(values);
-      message.success("Категорію успішно створено!");
-      onSuccess();
-      closeModal();
-    } catch (error: any) {
-      message.error(`Не вдалося створити категорію: ${error.message}`);
-      console.error("Failed to create category:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
+    createCategory(values, {
+      onSuccess: () => {
+        closeModal();
+      },
+    });
   };
 
   return <CategoryForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />;

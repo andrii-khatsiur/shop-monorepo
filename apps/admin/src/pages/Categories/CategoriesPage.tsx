@@ -1,8 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { Table, Space, Button, message } from "antd";
+import { Table, Space, Button } from "antd";
 import type { TableProps } from "antd";
-import { apiClient } from "../../services/api";
+
 import { useModal } from "../../context/ModalContext";
+import {
+  useCategories,
+  useDeleteCategory,
+} from "../../hooks/useCategoryQueries";
 
 import type { Category } from "@shop-monorepo/types";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
@@ -12,38 +15,15 @@ import { RightAlignedSpace } from "../../components/RightAlignedSpace";
 import { CreateCategoryForm } from "./CreateCategoryForm";
 import { EditCategoryForm } from "./EditCategoryForm";
 
-interface DataType extends Category {}
-
 export const CategoriesPage: React.FC = () => {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
   const { openModal } = useModal();
-
-  const fetchCategories = async () => {
-    setLoading(true);
-    try {
-      const data: Category[] = await apiClient.categories.all();
-      setCategories(data);
-    } catch (error) {
-      message.error("Не вдалося завантажити категорії.");
-      console.error("Failed to fetch categories:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  const handleFormSuccess = () => {
-    fetchCategories();
-  };
+  const { data: categories, isLoading } = useCategories();
+  const { mutate: deleteCategory } = useDeleteCategory();
 
   const showCreateCategoryModal = () => {
     openModal({
       title: "Додати категорію",
-      content: <CreateCategoryForm onSuccess={handleFormSuccess} />,
+      content: <CreateCategoryForm />,
       footer: null,
     });
   };
@@ -51,23 +31,16 @@ export const CategoriesPage: React.FC = () => {
   const showEditCategoryModal = (category: Category) => {
     openModal({
       title: "Редагувати категорію",
-      content: <EditCategoryForm category={category} onSuccess={handleFormSuccess} />,
+      content: <EditCategoryForm category={category} />,
       footer: null,
     });
   };
 
   const handleDeleteCategory = async (id: number) => {
-    try {
-      await apiClient.categories.delete(id);
-      message.success("Категорію успішно видалено!");
-      fetchCategories();
-    } catch (error: any) {
-      message.error(`Не вдалося видалити категорію: ${error.message}`);
-      console.error("Failed to delete category:", error);
-    }
+    deleteCategory(id);
   };
 
-  const columns: TableProps<DataType>["columns"] = [
+  const columns: TableProps<Category>["columns"] = [
     {
       title: "Назва",
       dataIndex: "name",
@@ -82,7 +55,7 @@ export const CategoriesPage: React.FC = () => {
     {
       title: "Дія",
       key: "action",
-      align: 'right', // Align header text to right
+      align: "right", // Align header text to right
       render: (_, record) => (
         <RightAlignedSpace size="middle">
           <Button
@@ -112,9 +85,9 @@ export const CategoriesPage: React.FC = () => {
       </Space>
       <Table
         columns={columns}
-        dataSource={categories}
+        dataSource={categories || []}
         rowKey="id"
-        loading={loading}
+        loading={isLoading}
         pagination={false}
       />
     </div>

@@ -1,35 +1,29 @@
-import React, { useState } from "react";
-import { message } from "antd";
+import React from "react";
 import { CategoryForm } from "./CategoryForm";
-import { apiClient } from "../../services/api";
 import type { Category, CategoryInput } from "@shop-monorepo/types";
 import { useModal } from "../../context/ModalContext";
+import { useUpdateCategory } from "../../hooks/useCategoryQueries";
 
 interface EditCategoryFormProps {
   category: Category;
-  onSuccess: () => void;
 }
 
 export const EditCategoryForm: React.FC<EditCategoryFormProps> = ({
   category,
-  onSuccess,
 }) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const { closeModal } = useModal();
+  const { mutate: updateCategory, isPending: isSubmitting } =
+    useUpdateCategory();
 
   const handleSubmit = async (values: CategoryInput) => {
-    setIsSubmitting(true);
-    try {
-      await apiClient.categories.update(category.id, values);
-      message.success("Категорію успішно оновлено!");
-      onSuccess();
-      closeModal();
-    } catch (error: any) {
-      message.error(`Не вдалося оновити категорію: ${error.message}`);
-      console.error("Failed to update category:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
+    updateCategory(
+      { id: category.id, category: values },
+      {
+        onSuccess: () => {
+          closeModal();
+        },
+      }
+    );
   };
 
   return (
