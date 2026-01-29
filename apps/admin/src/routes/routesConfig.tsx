@@ -1,5 +1,5 @@
-import { AppLayout } from "@/components/layout/Layout";
-import { PublicLayout } from "../components/layout/PublicLayout";
+import { MainLayout } from "@/layout/MainLayout";
+import { PublicLayout } from "../layout/PublicLayout";
 import { BrandsPage } from "../pages/Brands/BrandsPage";
 import { CategoriesPage } from "../pages/Categories/CategoriesPage";
 import { Dashboard } from "../pages/Dashboard";
@@ -10,7 +10,7 @@ import { ROUTES } from "./routes";
 
 export const routesConfig = [
   {
-    Layout: AppLayout,
+    Layout: MainLayout,
     routes: [
       {
         path: ROUTES.DASHBOARD,

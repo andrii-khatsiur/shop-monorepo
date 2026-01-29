@@ -6,8 +6,8 @@ import {
   LogoutOutlined,
 } from "@ant-design/icons";
 import { Button, Layout, theme, Flex } from "antd";
-import { isAuthenticated, removeAuthToken } from "../../services/auth";
-import { ROUTES } from "../../routes/routes";
+import { isAuthenticated, removeAuthToken } from "../services/auth";
+import { ROUTES } from "../routes/routes";
 import { Navigation } from "./Navigation";
 import styled from "styled-components";
 
@@ -35,15 +35,15 @@ const LogoContainer = styled.div<{ collapsed: boolean }>`
   }
 
   .logo-full-text {
-    display: ${({ collapsed }) => (collapsed ? 'none' : 'block')};
+    display: ${({ collapsed }) => (collapsed ? "none" : "block")};
   }
 
   .logo-collapsed-text {
-    display: ${({ collapsed }) => (collapsed ? 'block' : 'none')};
+    display: ${({ collapsed }) => (collapsed ? "block" : "none")};
   }
 `;
 
-export const AppLayout: React.FC<{ children: React.ReactNode }> = ({
+export const MainLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [collapsed, setCollapsed] = useState(false);
