@@ -3,17 +3,45 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  DashboardOutlined,
-  ShoppingOutlined,
-  TagOutlined,
-  AppstoreOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
-import { Button, Layout, Menu, theme, Flex } from "antd";
+import { Button, Layout, theme, Flex } from "antd";
 import { isAuthenticated, removeAuthToken } from "../../services/auth";
 import { ROUTES } from "../../routes/routes";
+import { Navigation } from "./Navigation";
+import styled from "styled-components";
 
 const { Header, Sider, Content } = Layout;
+
+const LayoutS = styled(Layout)`
+  height: 100vh;
+`;
+
+const LogoContainer = styled.div<{ collapsed: boolean }>`
+  height: 42px;
+  margin: 5px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden; // Important for hiding text that doesn't fit
+
+  h1 {
+    color: white;
+    font-size: 18px;
+    margin: 0;
+    white-space: nowrap; // Prevent text from wrapping
+  }
+
+  .logo-full-text {
+    display: ${({ collapsed }) => (collapsed ? 'none' : 'block')};
+  }
+
+  .logo-collapsed-text {
+    display: ${({ collapsed }) => (collapsed ? 'block' : 'none')};
+  }
+`;
 
 export const AppLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -34,36 +62,15 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({
   }
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
+    <LayoutS>
       <Sider trigger={null} collapsible collapsed={collapsed}>
-        <div className="demo-logo-vertical" />
-        <Menu
-          theme="dark"
-          mode="inline"
-          defaultSelectedKeys={[ROUTES.DASHBOARD]}
-          items={[
-            {
-              key: ROUTES.DASHBOARD,
-              icon: <DashboardOutlined />,
-              label: <Link to={ROUTES.DASHBOARD}>Панель управління</Link>,
-            },
-            {
-              key: ROUTES.PRODUCTS,
-              icon: <ShoppingOutlined />,
-              label: <Link to={ROUTES.PRODUCTS}>Продукти</Link>,
-            },
-            {
-              key: ROUTES.BRANDS,
-              icon: <TagOutlined />,
-              label: <Link to={ROUTES.BRANDS}>Бренди</Link>,
-            },
-            {
-              key: ROUTES.CATEGORIES,
-              icon: <AppstoreOutlined />,
-              label: <Link to={ROUTES.CATEGORIES}>Категорії</Link>,
-            },
-          ]}
-        />
+        <LogoContainer collapsed={collapsed}>
+          <h1>
+            <span className="logo-full-text">Shop Admin</span>
+            <span className="logo-collapsed-text">SA</span>
+          </h1>
+        </LogoContainer>
+        <Navigation />
       </Sider>
       <Layout>
         <Header style={{ padding: 0, background: colorBgContainer }}>
@@ -92,16 +99,14 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({
         </Header>
         <Content
           style={{
-            margin: "24px 16px",
-            padding: 24,
-            minHeight: 280,
             background: colorBgContainer,
             borderRadius: borderRadiusLG,
+            padding: "10px",
           }}
         >
           {children}
         </Content>
       </Layout>
-    </Layout>
+    </LayoutS>
   );
 };

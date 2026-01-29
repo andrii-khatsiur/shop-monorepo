@@ -1,23 +1,24 @@
 import React from "react";
 import { Form, Input, Switch, Button, InputNumber, Select } from "antd";
-import type { ProductInput, Brand, Category } from "@shop-monorepo/types";
+import type { ProductInput } from "@shop-monorepo/types";
+import { useBrands } from "@/hooks/useBrandQueries";
+import { useCategories } from "@/hooks/useCategoryQueries";
 
 interface ProductFormProps {
   initialValues?: Partial<ProductInput>;
   onSubmit: (values: ProductInput) => Promise<void>;
   isSubmitting: boolean;
-  brands: Brand[];
-  categories: Category[];
 }
 
 export const ProductForm: React.FC<ProductFormProps> = ({
   initialValues,
   onSubmit,
   isSubmitting,
-  brands,
-  categories,
 }) => {
   const [form] = Form.useForm();
+
+  const { data: brands = [] } = useBrands();
+  const { data: categories = [] } = useCategories();
 
   const handleFinish = async (values: ProductInput) => {
     // Ensure null for optional fields if they are empty

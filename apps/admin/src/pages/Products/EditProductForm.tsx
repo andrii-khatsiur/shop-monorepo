@@ -1,39 +1,33 @@
-import React, { useState } from "react";
-import { message } from "antd";
+import React from "react";
 import { ProductForm } from "./ProductForm";
-import { apiClient } from "../../services/api";
-import type { Product, ProductInput, Brand, Category } from "@shop-monorepo/types";
+import type {
+  Product,
+  ProductInput,
+  Brand,
+  Category,
+} from "@shop-monorepo/types";
 import { useModal } from "../../context/ModalContext";
+import { useUpdateProduct } from "../../hooks/useProductQueries";
 
 interface EditProductFormProps {
   product: Product;
-  onSuccess: () => void;
-  brands: Brand[];
-  categories: Category[];
 }
 
 export const EditProductForm: React.FC<EditProductFormProps> = ({
   product,
-  onSuccess,
-  brands,
-  categories,
 }) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const { closeModal } = useModal();
+  const { mutate: updateProduct, isPending: isSubmitting } = useUpdateProduct();
 
   const handleSubmit = async (values: ProductInput) => {
-    setIsSubmitting(true);
-    try {
-      await apiClient.products.update(product.id, values);
-      message.success("Продукт успішно оновлено!");
-      onSuccess();
-      closeModal();
-    } catch (error: any) {
-      message.error(`Не вдалося оновити продукт: ${error.message}`);
-      console.error("Failed to update product:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
+    updateProduct(
+      { id: product.id, product: values },
+      {
+        onSuccess: () => {
+          closeModal();
+        },
+      }
+    );
   };
 
   return (
@@ -46,8 +40,6 @@ export const EditProductForm: React.FC<EditProductFormProps> = ({
       }}
       onSubmit={handleSubmit}
       isSubmitting={isSubmitting}
-      brands={brands}
-      categories={categories}
     />
   );
 };

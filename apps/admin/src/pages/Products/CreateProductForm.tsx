@@ -1,45 +1,20 @@
-import React, { useState } from "react";
-import { message } from "antd";
+import React from "react";
 import { ProductForm } from "./ProductForm";
-import { apiClient } from "../../services/api";
-import type { ProductInput, Brand, Category } from "@shop-monorepo/types";
+import type { ProductInput } from "@shop-monorepo/types";
 import { useModal } from "../../context/ModalContext";
+import { useCreateProduct } from "../../hooks/useProductQueries";
 
-interface CreateProductFormProps {
-  onSuccess: () => void;
-  brands: Brand[];
-  categories: Category[];
-}
-
-export const CreateProductForm: React.FC<CreateProductFormProps> = ({
-  onSuccess,
-  brands,
-  categories,
-}) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+export const CreateProductForm: React.FC = () => {
   const { closeModal } = useModal();
+  const { mutate: createProduct, isPending: isSubmitting } = useCreateProduct();
 
   const handleSubmit = async (values: ProductInput) => {
-    setIsSubmitting(true);
-    try {
-      await apiClient.products.create(values);
-      message.success("Продукт успішно створено!");
-      onSuccess();
-      closeModal();
-    } catch (error: any) {
-      message.error(`Не вдалося створити продукт: ${error.message}`);
-      console.error("Failed to create product:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
+    createProduct(values, {
+      onSuccess: () => {
+        closeModal();
+      },
+    });
   };
 
-  return (
-    <ProductForm
-      onSubmit={handleSubmit}
-      isSubmitting={isSubmitting}
-      brands={brands}
-      categories={categories}
-    />
-  );
+  return <ProductForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />;
 };

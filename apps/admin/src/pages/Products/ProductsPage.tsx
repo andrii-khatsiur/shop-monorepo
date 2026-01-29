@@ -1,18 +1,7 @@
-import React, { useEffect, useState } from "react";
-import {
-  Table,
-  Space,
-  Button,
-  message,
-} from "antd";
+import React, { useState } from "react";
+import { Table, Space, Button } from "antd";
 import type { TableProps } from "antd";
-import { apiClient } from "../../services/api";
-import type {
-  Product,
-  PaginatedProducts,
-  Brand,
-  Category,
-} from "@shop-monorepo/types";
+import type { Product } from "@shop-monorepo/types";
 import { useModal } from "../../context/ModalContext";
 
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
@@ -22,58 +11,29 @@ import { RightAlignedSpace } from "../../components/RightAlignedSpace";
 import { CreateProductForm } from "./CreateProductForm";
 import { EditProductForm } from "./EditProductForm";
 
-interface DataType extends Product {}
+import { useProducts, useDeleteProduct } from "../../hooks/useProductQueries";
+import { useBrands } from "../../hooks/useBrandQueries";
+import { useCategories } from "../../hooks/useCategoryQueries";
 
 export const ProductsPage: React.FC = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [brands, setBrands] = useState<Brand[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
   const { openModal } = useModal();
 
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
-    total: 0,
   });
 
-  const fetchProducts = async (page: number, limit: number) => {
-    setLoading(true);
-    try {
-      const data: PaginatedProducts = await apiClient.products.all(page, limit);
-      setProducts(data.hits);
-      setPagination((prev) => ({
-        ...prev,
-        total: data.total,
-        current: page,
-        pageSize: limit,
-      }));
-    } catch (error) {
-      message.error("Не вдалося завантажити продукти.");
-      console.error("Failed to fetch products:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: paginatedProducts, isLoading } = useProducts({
+    page: pagination.current,
+    limit: pagination.pageSize,
+  });
+  const products = paginatedProducts?.hits || [];
+  const totalProducts = paginatedProducts?.total || 0;
 
-  const fetchBrandsAndCategories = async () => {
-    try {
-      const [brandsData, categoriesData] = await Promise.all([
-        apiClient.brands.all(),
-        apiClient.categories.all(),
-      ]);
-      setBrands(brandsData);
-      setCategories(categoriesData);
-    } catch (error) {
-      message.error("Не вдалося завантажити бренди або категорії.");
-      console.error("Failed to fetch brands or categories:", error);
-    }
-  };
+  const { mutate: deleteProduct } = useDeleteProduct();
 
-  useEffect(() => {
-    fetchProducts(pagination.current, pagination.pageSize);
-    fetchBrandsAndCategories();
-  }, [pagination.current, pagination.pageSize]);
+  const { data: brands = [] } = useBrands();
+  const { data: categories = [] } = useCategories();
 
   const handleTableChange = (newPagination: any) => {
     setPagination((prev) => ({
@@ -83,51 +43,25 @@ export const ProductsPage: React.FC = () => {
     }));
   };
 
-  const handleFormSuccess = () => {
-    fetchProducts(pagination.current, pagination.pageSize);
-  };
-
   const showCreateProductModal = () => {
     openModal({
       title: "Додати продукт",
-      content: (
-        <CreateProductForm
-          onSuccess={handleFormSuccess}
-          brands={brands}
-          categories={categories}
-        />
-      ),
+      content: <CreateProductForm />,
       footer: null,
     });
   };
-
   const showEditProductModal = (product: Product) => {
     openModal({
       title: "Редагувати продукт",
-      content: (
-        <EditProductForm
-          product={product}
-          onSuccess={handleFormSuccess}
-          brands={brands}
-          categories={categories}
-        />
-      ),
+      content: <EditProductForm product={product} />,
       footer: null,
     });
   };
-
   const handleDeleteProduct = async (id: number) => {
-    try {
-      await apiClient.products.delete(id);
-      message.success("Продукт успішно видалено!");
-      fetchProducts(pagination.current, pagination.pageSize);
-    } catch (error: any) {
-      message.error(`Не вдалося видалити продукт: ${error.message}`);
-      console.error("Failed to delete product:", error);
-    }
+    deleteProduct(id);
   };
 
-  const columns: TableProps<DataType>["columns"] = [
+  const columns: TableProps<Product>["columns"] = [
     {
       title: "Назва",
       dataIndex: "name",
@@ -146,6 +80,16 @@ export const ProductsPage: React.FC = () => {
         brands.find((brand) => brand.id === brandId)?.name || "Немає",
     },
     {
+      title: "Категорії",
+      dataIndex: "categoryIds",
+      key: "categoryIds",
+      render: (categoryIds: number[]) =>
+        categoryIds
+          .map((id) => categories.find((cat) => cat.id === id)?.name)
+          .filter(Boolean)
+          .join(", ") || "Немає",
+    },
+    {
       title: "Активний",
       dataIndex: "isActive",
       key: "isActive",
@@ -160,7 +104,7 @@ export const ProductsPage: React.FC = () => {
     {
       title: "Дія",
       key: "action",
-      align: 'right', // Align header text to right
+      align: "right", // Align header text to right
       render: (_, record) => (
         <RightAlignedSpace size="middle">
           <Button
@@ -192,11 +136,11 @@ export const ProductsPage: React.FC = () => {
         columns={columns}
         dataSource={products}
         rowKey="id"
-        loading={loading}
+        loading={isLoading}
         pagination={{
           current: pagination.current,
           pageSize: pagination.pageSize,
-          total: pagination.total,
+          total: totalProducts,
           showSizeChanger: true,
         }}
         onChange={handleTableChange}
