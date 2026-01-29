@@ -1,11 +1,11 @@
-import { AppLayout } from "../components/layout/Layout";
+import { AppLayout } from "@/components/layout/Layout";
 import { PublicLayout } from "../components/layout/PublicLayout";
-import { Brands } from "../pages/Brands";
-import { Categories } from "../pages/Categories";
+import { BrandsPage } from "../pages/Brands/BrandsPage";
+import { CategoriesPage } from "../pages/Categories/CategoriesPage";
 import { Dashboard } from "../pages/Dashboard";
 import { LoginPage } from "../pages/LoginPage";
 import { OAuthCallback } from "../pages/OAuthCallback";
-import { Products } from "../pages/Products";
+import { ProductsPage } from "../pages/Products/ProductsPage";
 import { ROUTES } from "./routes";
 
 export const routesConfig = [
@@ -18,15 +18,15 @@ export const routesConfig = [
       },
       {
         path: ROUTES.PRODUCTS,
-        element: <Products />,
+        element: <ProductsPage />,
       },
       {
         path: ROUTES.BRANDS,
-        element: <Brands />,
+        element: <BrandsPage />,
       },
       {
         path: ROUTES.CATEGORIES,
-        element: <Categories />,
+        element: <CategoriesPage />,
       },
     ],
   },
