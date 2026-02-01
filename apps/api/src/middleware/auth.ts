@@ -2,7 +2,7 @@ import { Context, Next } from "hono";
 import { verify } from "hono/jwt";
 import { logger } from "../utils/logger";
 
-import { User, UserRepository } from "../repos/userRepo";
+import { User, UserService } from "../services/userService";
 
 export type Env = {
   Variables: {
@@ -25,7 +25,7 @@ export const authMiddleware = async (c: Context<Env>, next: Next) => {
   try {
     const payload = await verify(token, JWT_SECRET);
 
-    const user = UserRepository.getById(Number(payload.id));
+    const user = UserService.getById(Number(payload.id));
 
     if (!user) {
       logger.warn(

@@ -2,7 +2,7 @@ import { Context } from "hono";
 import { sign } from "hono/jwt";
 
 import { logger } from "../utils/logger";
-import { UserRepository } from "../repos/userRepo";
+import { UserService } from "../services/userService";
 
 const JWT_SECRET = Bun.env.JWT_SECRET || "change-me-at-production";
 const FRONTEND_URL = Bun.env.FRONTEND_URL || "http://localhost:3200";
@@ -23,7 +23,7 @@ export async function handleGoogleCallback(c: Context) {
   }
 
   try {
-    const user = UserRepository.upsertGoogleUser({
+    const user = UserService.upsertGoogleUser({
       email: googleUser.email,
       googleId: googleUser.id,
       name: googleUser.name || "Google User",

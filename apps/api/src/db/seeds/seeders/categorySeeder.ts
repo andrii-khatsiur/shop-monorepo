@@ -1,4 +1,4 @@
-import { getCategories, createCategory } from "../../../repos/categoryRepo";
+import { getCategories, createCategory } from "../../../services/categoryService";
 import { categoriesData } from "../data/categories";
 import type { Category } from "@shop-monorepo/types";
 

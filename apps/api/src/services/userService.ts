@@ -21,7 +21,7 @@ const mapRowToUser = (row: UserRowI): User => ({
   createdAt: row.created_at,
 });
 
-export const UserRepository = {
+export const UserService = {
   upsertGoogleUser(data: GoogleUserInput) {
     const user = UserModel.createOrUpdateGoogleUser(data);
 

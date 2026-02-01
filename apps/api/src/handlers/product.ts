@@ -1,5 +1,5 @@
 import { Context } from "hono";
-import * as ProductRepo from "../repos/productRepo";
+import * as ProductService from "../services/productService";
 
 export const getProducts = (c: Context) => {
   const page = Number(c.req.query("page") || 1);
@@ -10,7 +10,7 @@ export const getProducts = (c: Context) => {
     categorySlug: c.req.query("category"),
   };
 
-  const result = ProductRepo.getProducts(page, limit, filters);
+  const result = ProductService.getProducts(page, limit, filters);
   return c.json(result);
 };
 
@@ -20,8 +20,8 @@ export const getProduct = (c: Context) => {
   const isId = /^\d+$/.test(param);
 
   const product = isId
-    ? ProductRepo.getProductById(Number(param))
-    : ProductRepo.getProductBySlug(param);
+    ? ProductService.getProductById(Number(param))
+    : ProductService.getProductBySlug(param);
 
   if (!product) {
     return c.json({ error: `Product "${param}" not found` }, 404);
@@ -32,7 +32,7 @@ export const getProduct = (c: Context) => {
 
 export const createProduct = async (c: Context) => {
   const body = await c.req.json();
-  const product = ProductRepo.createProduct(body);
+  const product = ProductService.createProduct(body);
   return c.json(product, 201);
 };
 
@@ -40,14 +40,14 @@ export const updateProduct = async (c: Context) => {
   const id = Number(c.req.param("id"));
 
   const body = await c.req.json();
-  const updated = ProductRepo.updateProduct(id, body);
+  const updated = ProductService.updateProduct(id, body);
   if (!updated) return c.json({ error: "Product not found" }, 404);
   return c.json(updated);
 };
 
 export const deleteProduct = (c: Context) => {
   const id = Number(c.req.param("id"));
-  const success = ProductRepo.deleteProduct(id);
+  const success = ProductService.deleteProduct(id);
   if (!success) return c.json({ error: "Product not found" }, 404);
   return c.json({ message: "Product deleted" });
 };

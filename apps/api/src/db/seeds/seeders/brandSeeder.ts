@@ -1,4 +1,4 @@
-import { getBrands, createBrand } from "../../../repos/brandRepo";
+import { getBrands, createBrand } from "../../../services/brandService";
 import { brandsData } from "../data/brands";
 import type { Brand } from "@shop-monorepo/types";
 

@@ -45,7 +45,7 @@ packages/
 ### API Architecture (`apps/api/src/`)
 - **Routes**: `routes/` - Hono route definitions
 - **Handlers**: `handlers/` - Request handlers (auth, brand, category, product)
-- **Repos**: `repos/` - Data access layer using repository pattern
+- **Services**: `services/` - Business logic layer (validation, mapping, orchestration)
 - **Models**: `db/models/` - Abstract Model base class with CRUD operations
 - **Middleware**: `middleware/` - Auth verification, request/error logging
 - **Database**: SQLite with migrations in `db/migrations/`
