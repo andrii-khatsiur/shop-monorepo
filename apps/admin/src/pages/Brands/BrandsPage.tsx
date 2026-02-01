@@ -1,4 +1,4 @@
-import { Table, Space, Button } from "antd";
+import { Table, Button } from "antd";
 import type { TableProps } from "antd";
 import type { Brand } from "@shop-monorepo/types";
 
@@ -10,6 +10,7 @@ import { StatusIndicator } from "../../components/StatusIndicator";
 import { RightAlignedSpace } from "../../components/RightAlignedSpace";
 import { DeleteButton } from "../../components/DeleteButton";
 import { EditButton } from "../../components/EditButton";
+import { PageContainer, Toolbar, TableContainer } from "../../components/PageLayout";
 
 import { CreateBrandForm } from "./CreateBrandForm";
 import { EditBrandForm } from "./EditBrandForm";
@@ -64,8 +65,8 @@ export const BrandsPage: React.FC = () => {
   ];
 
   return (
-    <div>
-      <Space style={{ marginBottom: 16 }}>
+    <PageContainer>
+      <Toolbar>
         <Button
           type="primary"
           icon={<PlusOutlined />}
@@ -73,14 +74,16 @@ export const BrandsPage: React.FC = () => {
         >
           Додати бренд
         </Button>
-      </Space>
-      <Table
-        columns={columns}
-        dataSource={brands || []}
-        rowKey="id"
-        loading={isLoading}
-        pagination={false}
-      />
-    </div>
+      </Toolbar>
+      <TableContainer>
+        <Table
+          columns={columns}
+          dataSource={brands || []}
+          rowKey="id"
+          loading={isLoading}
+          pagination={false}
+        />
+      </TableContainer>
+    </PageContainer>
   );
 };

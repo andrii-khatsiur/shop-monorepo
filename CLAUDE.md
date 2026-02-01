@@ -87,6 +87,12 @@ Tables: users, brands, categories, products, product_categories (junction).
 
 Seeds in `apps/api/src/db/seeds/` - cosmetics test data (7 brands, 6 categories, 25 products).
 
+## Code Style
+
+### Admin App
+- **No inline styles** - use `styled-components` for all styling
+- Dynamic theme values from Ant Design passed as transient props (`$bg`, `$radius`)
+
 ## Environment Variables
 
 Key variables per app (see `.env.example` files):

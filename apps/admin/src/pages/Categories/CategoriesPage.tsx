@@ -1,4 +1,4 @@
-import { Table, Space, Button } from "antd";
+import { Table, Button } from "antd";
 import type { TableProps } from "antd";
 
 import { useModal } from "../../context/ModalContext";
@@ -13,6 +13,7 @@ import { StatusIndicator } from "../../components/StatusIndicator";
 import { RightAlignedSpace } from "../../components/RightAlignedSpace";
 import { DeleteButton } from "../../components/DeleteButton";
 import { EditButton } from "../../components/EditButton";
+import { PageContainer, Toolbar, TableContainer } from "../../components/PageLayout";
 
 import { CreateCategoryForm } from "./CreateCategoryForm";
 import { EditCategoryForm } from "./EditCategoryForm";
@@ -67,8 +68,8 @@ export const CategoriesPage: React.FC = () => {
   ];
 
   return (
-    <div>
-      <Space style={{ marginBottom: 16 }}>
+    <PageContainer>
+      <Toolbar>
         <Button
           type="primary"
           icon={<PlusOutlined />}
@@ -76,14 +77,16 @@ export const CategoriesPage: React.FC = () => {
         >
           Додати категорію
         </Button>
-      </Space>
-      <Table
-        columns={columns}
-        dataSource={categories || []}
-        rowKey="id"
-        loading={isLoading}
-        pagination={false}
-      />
-    </div>
+      </Toolbar>
+      <TableContainer>
+        <Table
+          columns={columns}
+          dataSource={categories || []}
+          rowKey="id"
+          loading={isLoading}
+          pagination={false}
+        />
+      </TableContainer>
+    </PageContainer>
   );
 };

@@ -17,6 +17,26 @@ const LayoutS = styled(Layout)`
   height: 100vh;
 `;
 
+const HeaderS = styled(Header)<{ $bg: string }>`
+  padding: 0;
+  background: ${({ $bg }) => $bg};
+`;
+
+const HeaderButton = styled(Button)`
+  font-size: 16px;
+  width: 64px;
+  height: 64px;
+`;
+
+const ContentS = styled(Content)<{ $bg: string; $radius: number }>`
+  background: ${({ $bg }) => $bg};
+  border-radius: ${({ $radius }) => $radius}px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+`;
+
 const LogoContainer = styled.div<{ collapsed: boolean }>`
   height: 42px;
   margin: 5px;
@@ -73,39 +93,23 @@ export const MainLayout: React.FC<{ children: React.ReactNode }> = ({
         <Navigation />
       </Sider>
       <Layout>
-        <Header style={{ padding: 0, background: colorBgContainer }}>
+        <HeaderS $bg={colorBgContainer}>
           <Flex align="center" justify="space-between">
-            <Button
+            <HeaderButton
               type="text"
               icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
               onClick={() => setCollapsed(!collapsed)}
-              style={{
-                fontSize: "16px",
-                width: 64,
-                height: 64,
-              }}
             />
-            <Button
+            <HeaderButton
               type="text"
               icon={<LogoutOutlined />}
               onClick={handleLogout}
-              style={{
-                fontSize: "16px",
-                width: 64,
-                height: 64,
-              }}
             />
           </Flex>
-        </Header>
-        <Content
-          style={{
-            background: colorBgContainer,
-            borderRadius: borderRadiusLG,
-            padding: "10px",
-          }}
-        >
+        </HeaderS>
+        <ContentS $bg={colorBgContainer} $radius={borderRadiusLG}>
           {children}
-        </Content>
+        </ContentS>
       </Layout>
     </LayoutS>
   );

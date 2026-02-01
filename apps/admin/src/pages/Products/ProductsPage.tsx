@@ -1,14 +1,16 @@
-import React, { useState } from "react";
-import { Table, Space, Button } from "antd";
+import React from "react";
+import { Table, Button } from "antd";
 import type { TableProps } from "antd";
 import type { Product } from "@shop-monorepo/types";
 import { useModal } from "../../context/ModalContext";
 
 import { PlusOutlined } from "@ant-design/icons";
 import { StatusIndicator } from "../../components/StatusIndicator";
+import { PageContainer, Toolbar, TableContainer } from "../../components/PageLayout";
 import { RightAlignedSpace } from "../../components/RightAlignedSpace";
 import { DeleteButton } from "../../components/DeleteButton";
 import { EditButton } from "../../components/EditButton";
+import { BottomPagination } from "../../components/BottomPagination";
 
 import { CreateProductForm } from "./CreateProductForm";
 import { EditProductForm } from "./EditProductForm";
@@ -16,18 +18,15 @@ import { EditProductForm } from "./EditProductForm";
 import { useProducts, useDeleteProduct } from "../../hooks/useProductQueries";
 import { useBrands } from "../../hooks/useBrandQueries";
 import { useCategories } from "../../hooks/useCategoryQueries";
+import { usePagination } from "../../hooks/usePagination";
 
 export const ProductsPage: React.FC = () => {
   const { openModal } = useModal();
-
-  const [pagination, setPagination] = useState({
-    current: 1,
-    pageSize: 10,
-  });
+  const { page, pageSize } = usePagination();
 
   const { data: paginatedProducts, isLoading } = useProducts({
-    page: pagination.current,
-    limit: pagination.pageSize,
+    page,
+    limit: pageSize,
   });
   const products = paginatedProducts?.hits || [];
   const totalProducts = paginatedProducts?.total || 0;
@@ -36,14 +35,6 @@ export const ProductsPage: React.FC = () => {
 
   const { data: brands = [] } = useBrands();
   const { data: categories = [] } = useCategories();
-
-  const handleTableChange = (newPagination: any) => {
-    setPagination((prev) => ({
-      ...prev,
-      current: newPagination.current,
-      pageSize: newPagination.pageSize,
-    }));
-  };
 
   const showCreateProductModal = () => {
     openModal({
@@ -116,8 +107,8 @@ export const ProductsPage: React.FC = () => {
   ];
 
   return (
-    <div>
-      <Space style={{ marginBottom: 16 }}>
+    <PageContainer>
+      <Toolbar>
         <Button
           type="primary"
           icon={<PlusOutlined />}
@@ -125,20 +116,17 @@ export const ProductsPage: React.FC = () => {
         >
           Додати продукт
         </Button>
-      </Space>
-      <Table
-        columns={columns}
-        dataSource={products}
-        rowKey="id"
-        loading={isLoading}
-        pagination={{
-          current: pagination.current,
-          pageSize: pagination.pageSize,
-          total: totalProducts,
-          showSizeChanger: true,
-        }}
-        onChange={handleTableChange}
-      />
-    </div>
+      </Toolbar>
+      <TableContainer>
+        <Table
+          columns={columns}
+          dataSource={products}
+          rowKey="id"
+          loading={isLoading}
+          pagination={false}
+        />
+      </TableContainer>
+      <BottomPagination total={totalProducts} />
+    </PageContainer>
   );
 };
