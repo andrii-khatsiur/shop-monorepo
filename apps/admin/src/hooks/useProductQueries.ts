@@ -25,6 +25,14 @@ export const useProducts = (params: ProductsQueryParams) => {
   });
 };
 
+export const useProduct = (slug: string) => {
+  return useQuery<Product, Error>({
+    queryKey: [PRODUCT_QUERY_KEY, slug],
+    queryFn: () => apiClient.products.getBySlug(slug),
+    enabled: !!slug,
+  });
+};
+
 export const useCreateProduct = () => {
   const queryClient = useQueryClient();
   return useMutation<Product, Error, ProductInput>({

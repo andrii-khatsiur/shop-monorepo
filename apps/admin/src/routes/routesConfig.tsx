@@ -6,6 +6,7 @@ import { Dashboard } from "../pages/Dashboard";
 import { LoginPage } from "../pages/LoginPage";
 import { OAuthCallback } from "../pages/OAuthCallback";
 import { ProductsPage } from "../pages/Products/ProductsPage";
+import { ProductViewPage } from "../pages/Products/ProductViewPage";
 import { ROUTES } from "./routes";
 
 export const routesConfig = [
@@ -19,6 +20,10 @@ export const routesConfig = [
       {
         path: ROUTES.PRODUCTS,
         element: <ProductsPage />,
+      },
+      {
+        path: ROUTES.PRODUCT_VIEW,
+        element: <ProductViewPage />,
       },
       {
         path: ROUTES.BRANDS,

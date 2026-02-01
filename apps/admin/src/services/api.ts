@@ -74,6 +74,12 @@ export const apiClient = {
       );
       return response.data;
     },
+    getBySlug: async (slug: string): Promise<Product> => {
+      const response: AxiosResponse<Product> = await axiosClient.get(
+        `/products/${slug}`
+      );
+      return response.data;
+    },
     create: async (product: ProductInput): Promise<Product> => {
       const response: AxiosResponse<Product> = await axiosClient.post(
         "/products",

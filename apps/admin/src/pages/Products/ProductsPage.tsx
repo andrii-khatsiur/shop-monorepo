@@ -2,9 +2,10 @@ import React from "react";
 import { Table, Button } from "antd";
 import type { TableProps } from "antd";
 import type { Product } from "@shop-monorepo/types";
+import { useNavigate } from "react-router-dom";
 import { useModal } from "../../context/ModalContext";
 
-import { PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined, EyeOutlined } from "@ant-design/icons";
 import { StatusIndicator } from "../../components/StatusIndicator";
 import { PageContainer, Toolbar, TableContainer } from "../../components/PageLayout";
 import { RightAlignedSpace } from "../../components/RightAlignedSpace";
@@ -19,9 +20,11 @@ import { useProducts, useDeleteProduct } from "../../hooks/useProductQueries";
 import { useBrands } from "../../hooks/useBrandQueries";
 import { useCategories } from "../../hooks/useCategoryQueries";
 import { usePagination } from "../../hooks/usePagination";
+import { ROUTES } from "../../routes/routes";
 
 export const ProductsPage: React.FC = () => {
   const { openModal } = useModal();
+  const navigate = useNavigate();
   const { page, pageSize } = usePagination();
 
   const { data: paginatedProducts, isLoading } = useProducts({
@@ -50,11 +53,20 @@ export const ProductsPage: React.FC = () => {
       footer: null,
     });
   };
+  const handleViewProduct = (slug: string) => {
+    navigate(ROUTES.PRODUCT_VIEW.replace(":slug", slug));
+  };
+
   const columns: TableProps<Product>["columns"] = [
     {
       title: "Назва",
       dataIndex: "name",
       key: "name",
+      render: (name: string, record: Product) => (
+        <Button type="link" onClick={() => handleViewProduct(record.slug)} style={{ padding: 0 }}>
+          {name}
+        </Button>
+      ),
     },
     {
       title: "Ціна",
@@ -96,6 +108,7 @@ export const ProductsPage: React.FC = () => {
       align: "right", // Align header text to right
       render: (_, record) => (
         <RightAlignedSpace size="middle">
+          <Button icon={<EyeOutlined />} onClick={() => handleViewProduct(record.slug)} />
           <EditButton onClick={() => showEditProductModal(record)} />
           <DeleteButton
             onConfirm={() => deleteProduct(record.id)}
