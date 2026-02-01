@@ -4,9 +4,11 @@ import type { TableProps } from "antd";
 import type { Product } from "@shop-monorepo/types";
 import { useModal } from "../../context/ModalContext";
 
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { PlusOutlined } from "@ant-design/icons";
 import { StatusIndicator } from "../../components/StatusIndicator";
 import { RightAlignedSpace } from "../../components/RightAlignedSpace";
+import { DeleteButton } from "../../components/DeleteButton";
+import { EditButton } from "../../components/EditButton";
 
 import { CreateProductForm } from "./CreateProductForm";
 import { EditProductForm } from "./EditProductForm";
@@ -57,10 +59,6 @@ export const ProductsPage: React.FC = () => {
       footer: null,
     });
   };
-  const handleDeleteProduct = async (id: number) => {
-    deleteProduct(id);
-  };
-
   const columns: TableProps<Product>["columns"] = [
     {
       title: "Назва",
@@ -107,14 +105,10 @@ export const ProductsPage: React.FC = () => {
       align: "right", // Align header text to right
       render: (_, record) => (
         <RightAlignedSpace size="middle">
-          <Button
-            icon={<EditOutlined />}
-            onClick={() => showEditProductModal(record)}
-          />
-          <Button
-            icon={<DeleteOutlined />}
-            danger
-            onClick={() => handleDeleteProduct(record.id)}
+          <EditButton onClick={() => showEditProductModal(record)} />
+          <DeleteButton
+            onConfirm={() => deleteProduct(record.id)}
+            entityName={record.name}
           />
         </RightAlignedSpace>
       ),

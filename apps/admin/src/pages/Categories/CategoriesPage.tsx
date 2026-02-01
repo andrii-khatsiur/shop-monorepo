@@ -8,9 +8,11 @@ import {
 } from "../../hooks/useCategoryQueries";
 
 import type { Category } from "@shop-monorepo/types";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { PlusOutlined } from "@ant-design/icons";
 import { StatusIndicator } from "../../components/StatusIndicator";
 import { RightAlignedSpace } from "../../components/RightAlignedSpace";
+import { DeleteButton } from "../../components/DeleteButton";
+import { EditButton } from "../../components/EditButton";
 
 import { CreateCategoryForm } from "./CreateCategoryForm";
 import { EditCategoryForm } from "./EditCategoryForm";
@@ -36,10 +38,6 @@ export const CategoriesPage: React.FC = () => {
     });
   };
 
-  const handleDeleteCategory = async (id: number) => {
-    deleteCategory(id);
-  };
-
   const columns: TableProps<Category>["columns"] = [
     {
       title: "Назва",
@@ -58,14 +56,10 @@ export const CategoriesPage: React.FC = () => {
       align: "right", // Align header text to right
       render: (_, record) => (
         <RightAlignedSpace size="middle">
-          <Button
-            icon={<EditOutlined />}
-            onClick={() => showEditCategoryModal(record)}
-          />
-          <Button
-            icon={<DeleteOutlined />}
-            danger
-            onClick={() => handleDeleteCategory(record.id)}
+          <EditButton onClick={() => showEditCategoryModal(record)} />
+          <DeleteButton
+            onConfirm={() => deleteCategory(record.id)}
+            entityName={record.name}
           />
         </RightAlignedSpace>
       ),

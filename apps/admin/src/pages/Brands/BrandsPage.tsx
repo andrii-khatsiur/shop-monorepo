@@ -5,9 +5,11 @@ import type { Brand } from "@shop-monorepo/types";
 import { useModal } from "../../context/ModalContext";
 import { useBrands, useDeleteBrand } from "../../hooks/useBrandQueries";
 
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { PlusOutlined } from "@ant-design/icons";
 import { StatusIndicator } from "../../components/StatusIndicator";
 import { RightAlignedSpace } from "../../components/RightAlignedSpace";
+import { DeleteButton } from "../../components/DeleteButton";
+import { EditButton } from "../../components/EditButton";
 
 import { CreateBrandForm } from "./CreateBrandForm";
 import { EditBrandForm } from "./EditBrandForm";
@@ -33,10 +35,6 @@ export const BrandsPage: React.FC = () => {
     });
   };
 
-  const handleDeleteBrand = async (id: number) => {
-    deleteBrand(id);
-  };
-
   const columns: TableProps<Brand>["columns"] = [
     {
       title: "Назва",
@@ -55,14 +53,10 @@ export const BrandsPage: React.FC = () => {
       align: "right", // Align header text to right
       render: (_, record) => (
         <RightAlignedSpace size="middle">
-          <Button
-            icon={<EditOutlined />}
-            onClick={() => showEditBrandModal(record)}
-          />
-          <Button
-            icon={<DeleteOutlined />}
-            danger
-            onClick={() => handleDeleteBrand(record.id)}
+          <EditButton onClick={() => showEditBrandModal(record)} />
+          <DeleteButton
+            onConfirm={() => deleteBrand(record.id)}
+            entityName={record.name}
           />
         </RightAlignedSpace>
       ),
