@@ -1,5 +1,5 @@
-const TOKEN_KEY = "jwt_token";
-const API_BASE_URL = "http://localhost:3000/api";
+import { ROUTES } from "@/routes/routes";
+import { TOKEN_KEY, API_BASE_URL } from "@/constants/env";
 
 export const setAuthToken = (token: string) => {
   localStorage.setItem(TOKEN_KEY, token);
@@ -14,7 +14,7 @@ export const removeAuthToken = () => {
 };
 
 export const loginWithGoogle = () => {
-  window.location.href = `${API_BASE_URL}/auth/google`;
+  window.location.href = `${API_BASE_URL}${ROUTES.GOOGLE_AUTH}`;
 };
 
 export const isAuthenticated = (): boolean => {

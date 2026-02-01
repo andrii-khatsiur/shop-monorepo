@@ -11,8 +11,7 @@ import type {
 } from "@shop-monorepo/types";
 
 import { getAuthToken } from "./auth";
-
-const API_BASE_URL = "http://localhost:3000/api";
+import { API_BASE_URL } from "@/constants/env";
 
 // Class to manage the Axios instance and its interceptors
 class AxiosClient {

@@ -5,4 +5,5 @@ export const ROUTES = {
   PRODUCTS: "/products",
   BRANDS: "/brands",
   CATEGORIES: "/categories",
+  GOOGLE_AUTH: "/auth/google",
 };
