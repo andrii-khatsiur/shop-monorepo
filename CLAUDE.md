@@ -23,6 +23,11 @@ bun build               # Build all apps
 
 # Environment setup (run first)
 bun env:copy            # Copy .env.example to .env for all apps
+
+# Database
+bun db:seed             # Seed database with test data (idempotent)
+bun db:reset            # Delete db.sqlite
+bun db:fresh            # Reset + seed (full refresh)
 ```
 
 ## Architecture
@@ -79,6 +84,8 @@ All endpoints except `/ping` and `/auth/google` require JWT Bearer token.
 SQLite database (`db.sqlite` in root). Migrations in `apps/api/src/db/migrations/`.
 
 Tables: users, brands, categories, products, product_categories (junction).
+
+Seeds in `apps/api/src/db/seeds/` - cosmetics test data (7 brands, 6 categories, 25 products).
 
 ## Environment Variables
 
