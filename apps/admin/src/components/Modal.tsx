@@ -29,6 +29,7 @@ export const Modal: React.FC<ModalProps> = ({
       footer={footer}
       width={width}
       closable={closable}
+      destroyOnHidden
     >
       {children}
     </AntModal>
