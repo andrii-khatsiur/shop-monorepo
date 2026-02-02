@@ -1,10 +1,18 @@
 import React from "react";
 import { CategoryForm } from "./CategoryForm";
-import type { CategoryInput } from "@shop-monorepo/types";
+import type { Category, CategoryInput } from "@shop-monorepo/types";
 import { useModal } from "../../context/ModalContext";
 import { useCreateCategory } from "../../hooks/useCategoryQueries";
 
-export const CreateCategoryForm: React.FC = () => {
+interface CreateCategoryFormProps {
+  defaultParentId?: number;
+  parentCategories: Category[];
+}
+
+export const CreateCategoryForm: React.FC<CreateCategoryFormProps> = ({
+  defaultParentId,
+  parentCategories,
+}) => {
   const { closeModal } = useModal();
   const { mutate: createCategory, isPending: isSubmitting } =
     useCreateCategory();
@@ -17,5 +25,12 @@ export const CreateCategoryForm: React.FC = () => {
     });
   };
 
-  return <CategoryForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />;
+  return (
+    <CategoryForm
+      initialValues={{ isActive: true, parentId: defaultParentId ?? null }}
+      onSubmit={handleSubmit}
+      isSubmitting={isSubmitting}
+      parentCategories={parentCategories}
+    />
+  );
 };

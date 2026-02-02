@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Table, Button } from "antd";
 import type { TableProps } from "antd";
 
@@ -13,7 +14,11 @@ import { StatusIndicator } from "../../components/StatusIndicator";
 import { RightAlignedSpace } from "../../components/RightAlignedSpace";
 import { DeleteButton } from "../../components/DeleteButton";
 import { EditButton } from "../../components/EditButton";
-import { PageContainer, Toolbar, TableContainer } from "../../components/PageLayout";
+import {
+  PageContainer,
+  Toolbar,
+  TableContainer,
+} from "../../components/PageLayout";
 
 import { CreateCategoryForm } from "./CreateCategoryForm";
 import { EditCategoryForm } from "./EditCategoryForm";
@@ -23,18 +28,32 @@ export const CategoriesPage: React.FC = () => {
   const { data: categories, isLoading } = useCategories();
   const { mutate: deleteCategory } = useDeleteCategory();
 
-  const showCreateCategoryModal = () => {
+  const rootCategories = useMemo(() => categories || [], [categories]);
+
+  const showCreateCategoryModal = (defaultParentId?: number) => {
     openModal({
-      title: "Додати категорію",
-      content: <CreateCategoryForm />,
+      title: defaultParentId ? "Додати підкатегорію" : "Додати категорію",
+      content: (
+        <CreateCategoryForm
+          defaultParentId={defaultParentId}
+          parentCategories={rootCategories}
+        />
+      ),
       footer: null,
     });
   };
 
   const showEditCategoryModal = (category: Category) => {
+    const hasChildren = Boolean(category.children?.length);
     openModal({
       title: "Редагувати категорію",
-      content: <EditCategoryForm category={category} />,
+      content: (
+        <EditCategoryForm
+          category={category}
+          parentCategories={rootCategories}
+          hasChildren={hasChildren}
+        />
+      ),
       footer: null,
     });
   };
@@ -49,14 +68,24 @@ export const CategoriesPage: React.FC = () => {
       title: "Статус",
       dataIndex: "isActive",
       key: "isActive",
+      width: 120,
       render: (isActive: boolean) => <StatusIndicator isActive={isActive} />,
     },
     {
       title: "Дія",
       key: "action",
-      align: "right", // Align header text to right
+      width: 180,
+      align: "right",
       render: (_, record) => (
-        <RightAlignedSpace size="middle">
+        <RightAlignedSpace size="small">
+          {record.parentId === null && (
+            <Button
+              type="link"
+              size="small"
+              icon={<PlusOutlined />}
+              onClick={() => showCreateCategoryModal(record.id)}
+            />
+          )}
           <EditButton onClick={() => showEditCategoryModal(record)} />
           <DeleteButton
             onConfirm={() => deleteCategory(record.id)}
@@ -73,7 +102,7 @@ export const CategoriesPage: React.FC = () => {
         <Button
           type="primary"
           icon={<PlusOutlined />}
-          onClick={showCreateCategoryModal}
+          onClick={() => showCreateCategoryModal()}
         >
           Додати категорію
         </Button>
@@ -81,10 +110,14 @@ export const CategoriesPage: React.FC = () => {
       <TableContainer>
         <Table
           columns={columns}
-          dataSource={categories || []}
+          dataSource={rootCategories}
           rowKey="id"
           loading={isLoading}
           pagination={false}
+          expandable={{
+            defaultExpandAllRows: true,
+            indentSize: 24,
+          }}
         />
       </TableContainer>
     </PageContainer>

@@ -15,29 +15,41 @@ import { BottomPagination } from "../../components/BottomPagination";
 
 import { CreateProductForm } from "./CreateProductForm";
 import { EditProductForm } from "./EditProductForm";
+import { ProductFilters } from "./ProductFilters";
 
 import { useProducts, useDeleteProduct } from "../../hooks/useProductQueries";
 import { useBrands } from "../../hooks/useBrandQueries";
 import { useCategories } from "../../hooks/useCategoryQueries";
 import { usePagination } from "../../hooks/usePagination";
+import { useProductFilters } from "../../hooks/useProductFilters";
 import { ROUTES } from "../../routes/routes";
+import { formatCategoryName } from "../../utils/categoryUtils";
 
 export const ProductsPage: React.FC = () => {
   const { openModal } = useModal();
   const navigate = useNavigate();
   const { page, pageSize } = usePagination();
 
+  const { data: brands = [] } = useBrands();
+  const { data: categories = [] } = useCategories();
+
+  const {
+    filters,
+    brandFilter,
+    selectedCategoryId,
+    setBrandFilter,
+    setCategoryFilter,
+  } = useProductFilters(categories);
+
   const { data: paginatedProducts, isLoading } = useProducts({
     page,
     limit: pageSize,
+    filters,
   });
   const products = paginatedProducts?.hits || [];
   const totalProducts = paginatedProducts?.total || 0;
 
   const { mutate: deleteProduct } = useDeleteProduct();
-
-  const { data: brands = [] } = useBrands();
-  const { data: categories = [] } = useCategories();
 
   const showCreateProductModal = () => {
     openModal({
@@ -86,7 +98,7 @@ export const ProductsPage: React.FC = () => {
       key: "categoryIds",
       render: (categoryIds: number[]) =>
         categoryIds
-          .map((id) => categories.find((cat) => cat.id === id)?.name)
+          .map((id) => formatCategoryName(categories, id))
           .filter(Boolean)
           .join(", ") || "Немає",
     },
@@ -129,6 +141,14 @@ export const ProductsPage: React.FC = () => {
         >
           Додати продукт
         </Button>
+        <ProductFilters
+          brands={brands}
+          categories={categories}
+          brandFilter={brandFilter}
+          selectedCategoryId={selectedCategoryId}
+          onBrandChange={setBrandFilter}
+          onCategoryChange={setCategoryFilter}
+        />
       </Toolbar>
       <TableContainer>
         <Table

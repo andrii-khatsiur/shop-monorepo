@@ -12,6 +12,7 @@ import { useModal } from "../../context/ModalContext";
 import { EditProductForm } from "./EditProductForm";
 import { ROUTES } from "../../routes/routes";
 import { PageContainer, Toolbar } from "../../components/PageLayout";
+import { formatCategoryName } from "../../utils/categoryUtils";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -130,7 +131,7 @@ export const ProductViewPage: React.FC = () => {
 
   const brandName = brands.find((b) => b.id === product.brandId)?.name;
   const categoryNames = product.categoryIds
-    .map((id) => categories.find((c) => c.id === id)?.name)
+    .map((id) => formatCategoryName(categories, id))
     .filter(Boolean);
 
   const formattedDate = new Date(product.createdAt).toLocaleDateString("uk-UA", {

@@ -5,6 +5,7 @@ export interface CategoryRowI {
   name: string;
   slug: string;
   is_active: number;
+  parent_id: number | null;
 }
 
 export class CategoryModel extends Model {

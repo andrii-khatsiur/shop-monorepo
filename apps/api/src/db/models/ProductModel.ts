@@ -39,10 +39,10 @@ export class ProductModel extends Model {
           SELECT 1
           FROM product_categories pc
           WHERE pc.product_id = p.id
-            AND pc.category_id = ?
+            AND (pc.category_id = ? OR pc.root_category_id = ?)
         )
       `);
-      params.push(categoryId);
+      params.push(categoryId, categoryId);
     }
 
     const whereSql = whereClauses.length

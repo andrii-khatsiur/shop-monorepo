@@ -1,5 +1,6 @@
 import React from "react";
-import { Form, Input, Switch, Button, InputNumber, Select } from "antd";
+import { Form, Input, Switch, Button, InputNumber, Select, TreeSelect } from "antd";
+import { transformToTreeData } from "@/utils/categoryUtils";
 import type { ProductInput } from "@shop-monorepo/types";
 import { useBrands } from "@/hooks/useBrandQueries";
 import { useCategories } from "@/hooks/useCategoryQueries";
@@ -88,14 +89,15 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         />
       </Form.Item>
       <Form.Item name="categoryIds" label="Категорії">
-        <Select
-          mode="multiple"
+        <TreeSelect
+          treeData={transformToTreeData(categories)}
+          treeCheckable
+          showCheckedStrategy={TreeSelect.SHOW_CHILD}
           placeholder="Виберіть категорії"
           allowClear
-          options={categories.map((category) => ({
-            label: category.name,
-            value: category.id,
-          }))}
+          treeDefaultExpandAll
+          style={{ width: "100%" }}
+          maxTagCount="responsive"
         />
       </Form.Item>
       <Form.Item name="isActive" label="Активний" valuePropName="checked">
