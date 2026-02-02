@@ -52,9 +52,10 @@ packages/
 
 ### Admin Architecture (`apps/admin/src/`)
 - **Pages**: `pages/` - Route components (Dashboard, Brands/, Categories/, Products/)
-- **Hooks**: `hooks/` - TanStack React Query hooks for API data
+- **Hooks**: `hooks/` - TanStack React Query hooks for API data, URL filters (`useProductFilters`)
 - **Services**: `services/` - Axios HTTP client, auth utilities
 - **Context**: `context/` - Modal state management
+- **Utils**: `utils/` - Helper functions (e.g., `categoryUtils` for tree transformations)
 
 ### Shared Types
 Import from `@shop-monorepo/types`:
@@ -84,6 +85,8 @@ All endpoints except `/ping` and `/auth/google` require JWT Bearer token.
 SQLite database (`db.sqlite` in root). Migrations in `apps/api/src/db/migrations/`.
 
 Tables: users, brands, categories, products, product_categories (junction).
+
+Categories support one level of nesting (`parent_id`). API returns tree structure with `children` array.
 
 Seeds in `apps/api/src/db/seeds/` - cosmetics test data (7 brands, 6 categories, 25 products).
 
