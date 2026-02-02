@@ -82,7 +82,8 @@ export interface ProductFilters {
 export function getProducts(
   page: number = 1,
   limit: number = 10,
-  filters: ProductFilters = {}
+  filters: ProductFilters = {},
+  sortBy?: { field: string; direction: "asc" | "desc" }
 ): PaginatedProducts {
   const brand = filters.brandSlug
     ? BrandModel.findOne<BrandRowI>({ slug: filters.brandSlug })
@@ -98,7 +99,8 @@ export function getProducts(
     page,
     limit,
     brand?.id,
-    category?.id
+    category?.id,
+    sortBy
   );
 
   const productIds = products.map((p) => p.id);

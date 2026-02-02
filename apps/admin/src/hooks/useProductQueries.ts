@@ -9,14 +9,15 @@ interface ProductsQueryParams {
   page?: number;
   limit?: number;
   filters?: { brand?: string; category?: string };
+  sorter?: { field?: string; direction?: "asc" | "desc" };
 }
 
 export const useProducts = (params: ProductsQueryParams) => {
   return useQuery<PaginatedProducts, Error>({
     queryKey: [PRODUCT_QUERY_KEY, params], // Include params in query key for pagination/filtering
     queryFn: async () => {
-      const { page = 1, limit = 10, filters } = params;
-      const data = await apiClient.products.all(page, limit, filters);
+      const { page = 1, limit = 10, filters, sorter } = params;
+      const data = await apiClient.products.all(page, limit, filters, sorter);
       return data;
     },
     // Keep previous data when page/filters change, to avoid flickering

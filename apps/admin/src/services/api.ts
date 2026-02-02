@@ -57,7 +57,8 @@ export const apiClient = {
     all: async (
       page: number = 1,
       limit: number = 10,
-      filters?: { brand?: string; category?: string }
+      filters?: { brand?: string; category?: string },
+      sorter?: { field?: string; direction?: "asc" | "desc" }
     ): Promise<PaginatedProducts> => {
       const params = new URLSearchParams();
       params.append("page", page.toString());
@@ -67,6 +68,12 @@ export const apiClient = {
       }
       if (filters?.category) {
         params.append("category", filters.category);
+      }
+      if (sorter?.field) {
+        params.append("sortBy", sorter.field);
+        if (sorter.direction) {
+          params.append("sortDir", sorter.direction);
+        }
       }
       const response: AxiosResponse<PaginatedProducts> = await axiosClient.get(
         "/products",

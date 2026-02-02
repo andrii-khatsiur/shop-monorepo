@@ -26,6 +26,7 @@ import { useBrands } from "../../hooks/useBrandQueries";
 import { useCategories } from "../../hooks/useCategoryQueries";
 import { usePagination } from "../../hooks/usePagination";
 import { useProductFilters } from "../../hooks/useProductFilters";
+import { useProductSorter } from "../../hooks/useProductSorter";
 import { ROUTES } from "../../routes/routes";
 import { formatPrice } from "../../utils/currency";
 import { formatCategoryName } from "../../utils/categoryUtils";
@@ -46,10 +47,13 @@ export const ProductsPage: React.FC = () => {
     setCategoryFilter,
   } = useProductFilters(categories);
 
+  const { sorter, handleTableChange } = useProductSorter();
+
   const { data: paginatedProducts, isLoading } = useProducts({
     page,
     limit: pageSize,
     filters,
+    sorter,
   });
   const products = paginatedProducts?.hits || [];
   const totalProducts = paginatedProducts?.total || 0;
@@ -94,6 +98,7 @@ export const ProductsPage: React.FC = () => {
       dataIndex: "price",
       key: "price",
       render: (price: number) => formatPrice(price),
+      sorter: true,
     },
     {
       title: "Бренд",
@@ -170,6 +175,7 @@ export const ProductsPage: React.FC = () => {
           rowKey="id"
           loading={isLoading}
           pagination={false}
+          onChange={handleTableChange}
         />
       </TableContainer>
       <BottomPagination total={totalProducts} />

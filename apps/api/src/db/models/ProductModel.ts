@@ -22,7 +22,8 @@ export class ProductModel extends Model {
     page: number,
     limit: number,
     brandId?: number,
-    categoryId?: number
+    categoryId?: number,
+    sortBy?: { field: string; direction: "asc" | "desc" }
   ): { rows: ProductRowI[]; total: number } {
     const offset = (page - 1) * limit;
     const params: any[] = [];
@@ -59,9 +60,19 @@ export class ProductModel extends Model {
 
     if (total === 0) return { rows: [], total };
 
+    let orderBySql = "ORDER BY created_at DESC";
+    if (sortBy) {
+      const allowedFields = ["price", "created_at"];
+      if (allowedFields.includes(sortBy.field)) {
+        orderBySql = `ORDER BY ${sortBy.field} ${
+          sortBy.direction === "asc" ? "ASC" : "DESC"
+        }`;
+      }
+    }
+
     const rows = this.db
       .query<ProductRowI, any[]>(
-        `SELECT * FROM products p ${whereSql} ORDER BY created_at DESC LIMIT ? OFFSET ?`
+        `SELECT * FROM products p ${whereSql} ${orderBySql} LIMIT ? OFFSET ?`
       )
       .all(...params, limit, offset);
 
