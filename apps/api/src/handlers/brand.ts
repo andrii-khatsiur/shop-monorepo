@@ -1,9 +1,12 @@
 import { Context } from "hono";
 
 import * as BrandService from "../services/brandService";
+import { parseSortParams } from "../utils/queryParser";
 
 export const getBrands = (c: Context) => {
-  const brands = BrandService.getBrands();
+  const sort = parseSortParams(c);
+
+  const brands = BrandService.getBrands(sort);
   return c.json(brands);
 };
 

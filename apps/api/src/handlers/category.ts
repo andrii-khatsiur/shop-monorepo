@@ -1,8 +1,11 @@
 import { Context } from "hono";
 import * as CategoryService from "../services/categoryService";
+import { parseSortParams } from "../utils/queryParser";
 
 export const getCategories = (c: Context) => {
-  const categories = CategoryService.getCategories();
+  const sort = parseSortParams(c);
+
+  const categories = CategoryService.getCategories(sort);
   return c.json(categories);
 };
 

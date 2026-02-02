@@ -63,8 +63,18 @@ function buildCategoryTree(categories: Category[]): Category[] {
   return rootCategories;
 }
 
-export function getCategories(): Category[] {
-  const allCategories = CategoryModel.findAll<CategoryRowI>().map(mapRowToCategory);
+const mapSortFieldToSnakeCase = (field: string) => {
+  if (field === 'isActive') return 'is_active';
+  return field;
+};
+
+export function getCategories(
+  sort?: { [key: string]: "asc" | "desc" | undefined }
+): Category[] {
+  const mappedSort = sort
+    ? { [mapSortFieldToSnakeCase(Object.keys(sort)[0])]: Object.values(sort)[0] }
+    : undefined;
+  const allCategories = CategoryModel.findAllSorted<CategoryRowI>(mappedSort).map(mapRowToCategory);
   return buildCategoryTree(allCategories);
 }
 

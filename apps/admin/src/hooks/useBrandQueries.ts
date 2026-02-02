@@ -5,11 +5,11 @@ import { apiClient } from "../services/api";
 
 const BRAND_QUERY_KEY = ["brands"];
 
-export const useBrands = () => {
+export const useBrands = (sorter?: { field?: string; direction?: "asc" | "desc" }) => {
   return useQuery<Brand[], Error>({
-    queryKey: BRAND_QUERY_KEY,
+    queryKey: [...BRAND_QUERY_KEY, sorter],
     queryFn: async () => {
-      const data = await apiClient.brands.all();
+      const data = await apiClient.brands.all(sorter);
       return data;
     },
   });

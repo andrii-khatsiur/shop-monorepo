@@ -1,4 +1,4 @@
-import { Model } from "./model";
+import { Model, SortPropsType } from "./model";
 
 export interface ProductRowI {
   id: number;
@@ -23,7 +23,7 @@ export class ProductModel extends Model {
     limit: number,
     brandId?: number,
     categoryId?: number,
-    sortBy?: { field: string; direction: "asc" | "desc" }
+    sort?: SortPropsType
   ): { rows: ProductRowI[]; total: number } {
     const offset = (page - 1) * limit;
     const params: any[] = [];
@@ -60,15 +60,7 @@ export class ProductModel extends Model {
 
     if (total === 0) return { rows: [], total };
 
-    let orderBySql = "ORDER BY created_at DESC";
-    if (sortBy) {
-      const allowedFields = ["price", "created_at"];
-      if (allowedFields.includes(sortBy.field)) {
-        orderBySql = `ORDER BY ${sortBy.field} ${
-          sortBy.direction === "asc" ? "ASC" : "DESC"
-        }`;
-      }
-    }
+    let orderBySql = this.buildSort(sort);
 
     const rows = this.db
       .query<ProductRowI, any[]>(

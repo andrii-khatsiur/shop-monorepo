@@ -79,11 +79,17 @@ export interface ProductFilters {
   categorySlug?: string;
 }
 
+const mapSortFieldToSnakeCase = (field: string) => {
+  if (field === "isActive") return "is_active";
+  if (field === "isNew") return "is_new";
+  return field;
+};
+
 export function getProducts(
   page: number = 1,
   limit: number = 10,
   filters: ProductFilters = {},
-  sortBy?: { field: string; direction: "asc" | "desc" }
+  sort?: { [key: string]: "asc" | "desc" | undefined }
 ): PaginatedProducts {
   const brand = filters.brandSlug
     ? BrandModel.findOne<BrandRowI>({ slug: filters.brandSlug })
@@ -95,12 +101,18 @@ export function getProducts(
     : null;
   if (filters.categorySlug && !category) return { hits: [], total: 0 };
 
+  const mappedSort = sort
+    ? {
+        [mapSortFieldToSnakeCase(Object.keys(sort)[0])]: Object.values(sort)[0],
+      }
+    : undefined;
+
   const { rows: products, total } = ProductModel.findManyWithFilter(
     page,
     limit,
     brand?.id,
     category?.id,
-    sortBy
+    mappedSort
   );
 
   const productIds = products.map((p) => p.id);

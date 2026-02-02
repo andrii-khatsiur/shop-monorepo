@@ -109,8 +109,17 @@ export const apiClient = {
   },
 
   brands: {
-    all: async (): Promise<Brand[]> => {
-      const response: AxiosResponse<Brand[]> = await axiosClient.get("/brands");
+    all: async (
+      sorter?: { field?: string; direction?: "asc" | "desc" }
+    ): Promise<Brand[]> => {
+      const params = new URLSearchParams();
+      if (sorter?.field) {
+        params.append("sortBy", sorter.field);
+        if (sorter.direction) {
+          params.append("sortDir", sorter.direction);
+        }
+      }
+      const response: AxiosResponse<Brand[]> = await axiosClient.get("/brands", { params });
       return response.data;
     },
     create: async (brand: BrandInput): Promise<Brand> => {
@@ -135,9 +144,19 @@ export const apiClient = {
   },
 
   categories: {
-    all: async (): Promise<Category[]> => {
+    all: async (
+      sorter?: { field?: string; direction?: "asc" | "desc" }
+    ): Promise<Category[]> => {
+      const params = new URLSearchParams();
+      if (sorter?.field) {
+        params.append("sortBy", sorter.field);
+        if (sorter.direction) {
+          params.append("sortDir", sorter.direction);
+        }
+      }
       const response: AxiosResponse<Category[]> = await axiosClient.get(
-        "/categories"
+        "/categories",
+        { params }
       );
       return response.data;
     },

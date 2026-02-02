@@ -5,11 +5,11 @@ import { apiClient } from "../services/api";
 
 const CATEGORY_QUERY_KEY = ["categories"];
 
-export const useCategories = () => {
+export const useCategories = (sorter?: { field?: string; direction?: "asc" | "desc" }) => {
   return useQuery<Category[], Error>({
-    queryKey: CATEGORY_QUERY_KEY,
+    queryKey: [...CATEGORY_QUERY_KEY, sorter],
     queryFn: async () => {
-      const data = await apiClient.categories.all();
+      const data = await apiClient.categories.all(sorter);
       return data;
     },
   });

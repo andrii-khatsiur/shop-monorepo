@@ -26,7 +26,7 @@ import { useBrands } from "../../hooks/useBrandQueries";
 import { useCategories } from "../../hooks/useCategoryQueries";
 import { usePagination } from "../../hooks/usePagination";
 import { useProductFilters } from "../../hooks/useProductFilters";
-import { useProductSorter } from "../../hooks/useProductSorter";
+import { useTableSorter } from "../../hooks/useTableSorter";
 import { ROUTES } from "../../routes/routes";
 import { formatPrice } from "../../utils/currency";
 import { formatCategoryName } from "../../utils/categoryUtils";
@@ -47,7 +47,7 @@ export const ProductsPage: React.FC = () => {
     setCategoryFilter,
   } = useProductFilters(categories);
 
-  const { sorter, handleTableChange } = useProductSorter();
+  const { sorter, handleTableChange } = useTableSorter();
 
   const { data: paginatedProducts, isLoading } = useProducts({
     page,
@@ -83,6 +83,7 @@ export const ProductsPage: React.FC = () => {
       title: "Назва",
       dataIndex: "name",
       key: "name",
+      sorter: true,
       render: (name: string, record: Product) => (
         <Button
           type="link"
@@ -121,12 +122,14 @@ export const ProductsPage: React.FC = () => {
       title: "Активний",
       dataIndex: "isActive",
       key: "isActive",
+      sorter: true,
       render: (isActive: boolean) => <StatusIndicator isActive={isActive} />,
     },
     {
       title: "Новий",
       dataIndex: "isNew",
       key: "isNew",
+      sorter: true,
       render: (isNew: boolean) => <StatusIndicator isActive={isNew} />,
     },
     {

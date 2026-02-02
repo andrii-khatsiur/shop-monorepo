@@ -1,22 +1,18 @@
 import { Context } from "hono";
 import * as ProductService from "../services/productService";
+import { parseSortParams } from "../utils/queryParser";
 
 export const getProducts = (c: Context) => {
   const page = Number(c.req.query("page") || 1);
   const limit = Number(c.req.query("limit") || 10);
-  const sortByField = c.req.query("sortBy");
-  const sortDir = c.req.query("sortDir") as "asc" | "desc" | undefined;
+  const sort = parseSortParams(c);
 
   const filters = {
     brandSlug: c.req.query("brand"),
     categorySlug: c.req.query("category"),
   };
 
-  const sortBy = sortByField
-    ? { field: sortByField, direction: sortDir || "asc" }
-    : undefined;
-
-  const result = ProductService.getProducts(page, limit, filters, sortBy);
+  const result = ProductService.getProducts(page, limit, filters, sort);
   return c.json(result);
 };
 

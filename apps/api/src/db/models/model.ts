@@ -1,6 +1,8 @@
 import { Database } from "bun:sqlite";
 import { DatabaseConnection } from "../db";
 
+export type SortPropsType = { [key: string]: "asc" | "desc" | undefined };
+
 type WhereCondition = {
   [key: string]: string | number | boolean;
 };
@@ -62,14 +64,23 @@ export abstract class Model {
 
   static findMany<T>(
     this: typeof Model & { tableName: string },
-    where: WhereCondition
+    where: WhereCondition = {},
+    sort?: SortPropsType
   ): T[] {
     const conditions = Object.keys(where)
       .map((key) => `${key} = ?`)
       .join(" AND ");
     const values = Object.values(where);
 
-    const query = `SELECT * FROM ${this.tableName} WHERE ${conditions}`;
+    let query = `SELECT * FROM ${this.tableName}`;
+    if (conditions) {
+      query += ` WHERE ${conditions}`;
+    }
+
+    let orderBySql = this.buildSort(sort);
+
+    query += ` ${orderBySql}`;
+
     const stmt = this.db.prepare(query);
     return stmt.all(...values) as T[];
   }
@@ -131,5 +142,16 @@ export abstract class Model {
         SELECT * FROM ${this.tableName} WHERE id IN (${placeholders})
       `;
     return this.db.query<T, number[]>(query).all(...ids);
+  }
+
+  static buildSort(sort?: SortPropsType) {
+    let orderBySql = "ORDER BY created_at DESC";
+    if (sort && Object.keys(sort).length > 0) {
+      const field = Object.keys(sort)[0];
+      const direction = sort[field]?.toUpperCase() || "ASC";
+      orderBySql = `ORDER BY ${field} ${direction}`;
+    }
+
+    return orderBySql;
   }
 }

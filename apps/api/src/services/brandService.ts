@@ -30,8 +30,18 @@ export function createBrand(data: BrandInput): Brand {
   }
 }
 
-export function getBrands(): Brand[] {
-  const brands = BrandModel.findAll<BrandRowI>();
+const mapSortFieldToSnakeCase = (field: string) => {
+  if (field === 'isActive') return 'is_active';
+  return field;
+};
+
+export function getBrands(
+  sort?: { [key: string]: "asc" | "desc" | undefined }
+): Brand[] {
+  const mappedSort = sort
+    ? { [mapSortFieldToSnakeCase(Object.keys(sort)[0])]: Object.values(sort)[0] }
+    : undefined;
+  const brands = BrandModel.findAllSorted<BrandRowI>(mappedSort);
   return brands.map(mapRowToBrand);
 }
 

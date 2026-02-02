@@ -7,6 +7,7 @@ import {
   useCategories,
   useDeleteCategory,
 } from "../../hooks/useCategoryQueries";
+import { useTableSorter } from "../../hooks/useTableSorter";
 
 import type { Category } from "@shop-monorepo/types";
 import { PlusOutlined } from "@ant-design/icons";
@@ -25,7 +26,8 @@ import { EditCategoryForm } from "./EditCategoryForm";
 
 export const CategoriesPage: React.FC = () => {
   const { openModal } = useModal();
-  const { data: categories, isLoading } = useCategories();
+  const { sorter, handleTableChange } = useTableSorter();
+  const { data: categories, isLoading } = useCategories(sorter);
   const { mutate: deleteCategory } = useDeleteCategory();
 
   const rootCategories = useMemo(() => categories || [], [categories]);
@@ -63,12 +65,14 @@ export const CategoriesPage: React.FC = () => {
       title: "Назва",
       dataIndex: "name",
       key: "name",
+      sorter: true,
     },
     {
       title: "Статус",
       dataIndex: "isActive",
       key: "isActive",
       width: 120,
+      sorter: true,
       render: (isActive: boolean) => <StatusIndicator isActive={isActive} />,
     },
     {
@@ -118,6 +122,7 @@ export const CategoriesPage: React.FC = () => {
             defaultExpandAllRows: true,
             indentSize: 24,
           }}
+          onChange={handleTableChange}
         />
       </TableContainer>
     </PageContainer>

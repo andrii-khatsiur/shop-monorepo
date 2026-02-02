@@ -4,20 +4,26 @@ import type { Brand } from "@shop-monorepo/types";
 
 import { useModal } from "../../context/ModalContext";
 import { useBrands, useDeleteBrand } from "../../hooks/useBrandQueries";
+import { useTableSorter } from "../../hooks/useTableSorter";
 
 import { PlusOutlined } from "@ant-design/icons";
 import { StatusIndicator } from "../../components/StatusIndicator";
 import { RightAlignedSpace } from "../../components/RightAlignedSpace";
 import { DeleteButton } from "../../components/DeleteButton";
 import { EditButton } from "../../components/EditButton";
-import { PageContainer, Toolbar, TableContainer } from "../../components/PageLayout";
+import {
+  PageContainer,
+  Toolbar,
+  TableContainer,
+} from "../../components/PageLayout";
 
 import { CreateBrandForm } from "./CreateBrandForm";
 import { EditBrandForm } from "./EditBrandForm";
 
 export const BrandsPage: React.FC = () => {
   const { openModal } = useModal();
-  const { data: brands, isLoading } = useBrands();
+  const { sorter, handleTableChange } = useTableSorter();
+  const { data: brands, isLoading } = useBrands(sorter);
   const { mutate: deleteBrand } = useDeleteBrand();
 
   const showCreateBrandModal = () => {
@@ -41,11 +47,13 @@ export const BrandsPage: React.FC = () => {
       title: "Назва",
       dataIndex: "name",
       key: "name",
+      sorter: true,
     },
     {
       title: "Статус",
       dataIndex: "isActive",
       key: "isActive",
+      sorter: true,
       render: (isActive: boolean) => <StatusIndicator isActive={isActive} />,
     },
     {
@@ -82,6 +90,7 @@ export const BrandsPage: React.FC = () => {
           rowKey="id"
           loading={isLoading}
           pagination={false}
+          onChange={handleTableChange}
         />
       </TableContainer>
     </PageContainer>
