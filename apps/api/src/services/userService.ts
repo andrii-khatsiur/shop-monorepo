@@ -1,15 +1,6 @@
+import type { User } from "@shop-monorepo/types";
 import { DatabaseConnection } from "../db/db";
 import { GoogleUserInput, UserModel, UserRowI } from "../db/models/UserModel";
-
-export interface User {
-  id: number;
-  email: string;
-  googleId: string | null;
-  name: string | null;
-  avatarUrl: string | null;
-  role: string;
-  createdAt: string;
-}
 
 const mapRowToUser = (row: UserRowI): User => ({
   id: row.id,
@@ -17,7 +8,7 @@ const mapRowToUser = (row: UserRowI): User => ({
   googleId: row.google_id,
   name: row.name,
   avatarUrl: row.avatar_url,
-  role: row.role,
+  role: row.role as "admin" | "user",
   createdAt: row.created_at,
 });
 

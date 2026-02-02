@@ -56,7 +56,7 @@ The project uses `bun` scripts defined in the root `package.json` to manage deve
 *   **Environment Variable Management:** Utilize `.env` files for configuration and `dotenv-cli` or custom scripts for loading them.
 *   **Path Aliases:** Use `@apps/*`, `@packages/*`, `~/*`, or `@/*` aliases for module imports as defined in `tsconfig.json` files to simplify paths.
 *   **Shared Types (packages/types):**
-    *   Individual type definitions are placed in separate files (e.g., `packages/types/src/Brand.ts`).
+    *   Individual type definitions are placed in separate files (e.g., `packages/types/src/Brand.ts`, `packages/types/src/User.ts`).
     *   The `packages/types/src/index.ts` file re-exports these individual types for a clean package interface.
     *   Sub-projects consuming shared types must add the shared package as a `workspace:` dependency (e.g., `"@shop-monorepo/types": "workspace:^1.0.0"`).
     *   Use `import type { TypeName } from "package-name";` for importing only type information, which can aid bundler optimizations.

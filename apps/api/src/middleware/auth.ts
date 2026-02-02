@@ -1,8 +1,9 @@
 import { Context, Next } from "hono";
 import { verify } from "hono/jwt";
-import { logger } from "../utils/logger";
+import { User } from "@shop-monorepo/types";
 
-import { User, UserService } from "../services/userService";
+import { logger } from "../utils/logger";
+import { UserService } from "../services/userService";
 
 export type Env = {
   Variables: {

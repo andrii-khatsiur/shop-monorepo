@@ -7,7 +7,11 @@ import { useModal } from "../../context/ModalContext";
 
 import { PlusOutlined, EyeOutlined } from "@ant-design/icons";
 import { StatusIndicator } from "../../components/StatusIndicator";
-import { PageContainer, Toolbar, TableContainer } from "../../components/PageLayout";
+import {
+  PageContainer,
+  Toolbar,
+  TableContainer,
+} from "../../components/PageLayout";
 import { RightAlignedSpace } from "../../components/RightAlignedSpace";
 import { DeleteButton } from "../../components/DeleteButton";
 import { EditButton } from "../../components/EditButton";
@@ -23,6 +27,7 @@ import { useCategories } from "../../hooks/useCategoryQueries";
 import { usePagination } from "../../hooks/usePagination";
 import { useProductFilters } from "../../hooks/useProductFilters";
 import { ROUTES } from "../../routes/routes";
+import { formatPrice } from "../../utils/currency";
 import { formatCategoryName } from "../../utils/categoryUtils";
 
 export const ProductsPage: React.FC = () => {
@@ -75,7 +80,11 @@ export const ProductsPage: React.FC = () => {
       dataIndex: "name",
       key: "name",
       render: (name: string, record: Product) => (
-        <Button type="link" onClick={() => handleViewProduct(record.slug)} style={{ padding: 0 }}>
+        <Button
+          type="link"
+          onClick={() => handleViewProduct(record.slug)}
+          style={{ padding: 0 }}
+        >
           {name}
         </Button>
       ),
@@ -84,6 +93,7 @@ export const ProductsPage: React.FC = () => {
       title: "Ціна",
       dataIndex: "price",
       key: "price",
+      render: (price: number) => formatPrice(price),
     },
     {
       title: "Бренд",
@@ -120,7 +130,10 @@ export const ProductsPage: React.FC = () => {
       align: "right", // Align header text to right
       render: (_, record) => (
         <RightAlignedSpace size="middle">
-          <Button icon={<EyeOutlined />} onClick={() => handleViewProduct(record.slug)} />
+          <Button
+            icon={<EyeOutlined />}
+            onClick={() => handleViewProduct(record.slug)}
+          />
           <EditButton onClick={() => showEditProductModal(record)} />
           <DeleteButton
             onConfirm={() => deleteProduct(record.id)}

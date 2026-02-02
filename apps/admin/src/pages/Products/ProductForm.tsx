@@ -1,6 +1,15 @@
 import React from "react";
-import { Form, Input, Switch, Button, InputNumber, Select, TreeSelect } from "antd";
-import { transformToTreeData } from "@/utils/categoryUtils";
+import {
+  Form,
+  Input,
+  Switch,
+  Button,
+  InputNumber,
+  Select,
+  TreeSelect,
+} from "antd";
+import { transformToTreeData } from "../../utils/categoryUtils";
+import { convertPriceToCoins, convertCoinsToPrice } from "../../utils/currency";
 import type { ProductInput } from "@shop-monorepo/types";
 import { useBrands } from "@/hooks/useBrandQueries";
 import { useCategories } from "@/hooks/useCategoryQueries";
@@ -28,7 +37,14 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     values.isActive = values.isActive ?? false;
     values.isNew = values.isNew ?? false;
 
-    await onSubmit(values);
+    // Convert prices to coins
+    const productToSubmit = {
+      ...values,
+      price: convertPriceToCoins(values.price as number),
+      oldPrice: convertPriceToCoins(values.oldPrice as number | null),
+    };
+
+    await onSubmit(productToSubmit);
     form.resetFields(); // Reset fields after successful submission
   };
 
@@ -37,7 +53,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       form={form}
       layout="vertical"
       onFinish={handleFinish}
-      initialValues={initialValues}
+      initialValues={{
+        ...initialValues,
+        price: convertCoinsToPrice(initialValues?.price),
+        oldPrice: convertCoinsToPrice(initialValues?.oldPrice),
+      }}
     >
       <Form.Item
         name="name"

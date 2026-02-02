@@ -12,6 +12,7 @@ import { useModal } from "../../context/ModalContext";
 import { EditProductForm } from "./EditProductForm";
 import { ROUTES } from "../../routes/routes";
 import { PageContainer, Toolbar } from "../../components/PageLayout";
+import { formatPrice } from "../../utils/currency";
 import { formatCategoryName } from "../../utils/categoryUtils";
 
 const { Title, Text, Paragraph } = Typography;
@@ -122,9 +123,7 @@ export const ProductViewPage: React.FC = () => {
             Назад до списку
           </Button>
         </Toolbar>
-        <Text type="danger">
-          {error?.message || "Продукт не знайдено"}
-        </Text>
+        <Text type="danger">{error?.message || "Продукт не знайдено"}</Text>
       </PageContainer>
     );
   }
@@ -134,11 +133,14 @@ export const ProductViewPage: React.FC = () => {
     .map((id) => formatCategoryName(categories, id))
     .filter(Boolean);
 
-  const formattedDate = new Date(product.createdAt).toLocaleDateString("uk-UA", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  const formattedDate = new Date(product.createdAt).toLocaleDateString(
+    "uk-UA",
+    {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }
+  );
 
   return (
     <PageContainer>
@@ -166,9 +168,11 @@ export const ProductViewPage: React.FC = () => {
           <Title level={2}>{product.name}</Title>
 
           <PriceBlock>
-            <CurrentPrice>{product.price} грн</CurrentPrice>
+            <CurrentPrice>{formatPrice(product.price)}</CurrentPrice>
             {product.oldPrice && (
-              <OldPrice type="secondary">{product.oldPrice} грн</OldPrice>
+              <OldPrice type="secondary">
+                {formatPrice(product.oldPrice)}
+              </OldPrice>
             )}
             {product.discount && (
               <DiscountTag color="red">-{product.discount}%</DiscountTag>
