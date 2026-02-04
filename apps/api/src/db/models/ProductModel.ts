@@ -15,26 +15,32 @@ export interface ProductRowI {
   created_at: string;
 }
 
+type ProductFindManyFilter = {
+  brandId?: number;
+  categoryId?: number;
+  isActive?: boolean;
+  isNew?: boolean;
+};
+
 export class ProductModel extends Model {
   static tableName = "products";
 
   static findManyWithFilter(
     page: number,
     limit: number,
-    brandId?: number,
-    categoryId?: number,
-    sort?: SortPropsType
+    sort?: SortPropsType,
+    filters?: ProductFindManyFilter
   ): { rows: ProductRowI[]; total: number } {
     const offset = (page - 1) * limit;
     const params: any[] = [];
     const whereClauses: string[] = [];
 
-    if (brandId) {
+    if (filters?.brandId) {
       whereClauses.push(`brand_id = ?`);
-      params.push(brandId);
+      params.push(filters.brandId);
     }
 
-    if (categoryId) {
+    if (filters?.categoryId) {
       whereClauses.push(`
         EXISTS (
           SELECT 1
@@ -43,7 +49,17 @@ export class ProductModel extends Model {
             AND (pc.category_id = ? OR pc.root_category_id = ?)
         )
       `);
-      params.push(categoryId, categoryId);
+      params.push(filters.categoryId, filters.categoryId);
+    }
+
+    if (filters?.isActive !== undefined) {
+      whereClauses.push(`is_active = ?`);
+      params.push(filters.isActive ? 1 : 0);
+    }
+
+    if (filters?.isNew !== undefined) {
+      whereClauses.push(`is_new = ?`);
+      params.push(filters.isNew ? 1 : 0);
     }
 
     const whereSql = whereClauses.length

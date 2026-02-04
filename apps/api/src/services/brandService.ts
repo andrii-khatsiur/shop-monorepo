@@ -30,18 +30,32 @@ export function createBrand(data: BrandInput): Brand {
   }
 }
 
+export interface BrandFilters {
+  isActive?: boolean;
+}
+
 const mapSortFieldToSnakeCase = (field: string) => {
   if (field === 'isActive') return 'is_active';
   return field;
 };
 
 export function getBrands(
-  sort?: { [key: string]: "asc" | "desc" | undefined }
+  sort?: { [key: string]: "asc" | "desc" | undefined },
+  filters?: BrandFilters
 ): Brand[] {
   const mappedSort = sort
     ? { [mapSortFieldToSnakeCase(Object.keys(sort)[0])]: Object.values(sort)[0] }
     : undefined;
-  const brands = BrandModel.findAllSorted<BrandRowI>(mappedSort);
+
+  const where: Record<string, number> = {};
+  if (filters?.isActive !== undefined) {
+    where.is_active = filters.isActive ? 1 : 0;
+  }
+
+  const defaultSort = { name: "asc" } as { [key: string]: "asc" | "desc" };
+  const effectiveSort = mappedSort && Object.keys(mappedSort).length > 0 ? mappedSort : defaultSort;
+
+  const brands = BrandModel.findMany<BrandRowI>(where, effectiveSort);
   return brands.map(mapRowToBrand);
 }
 

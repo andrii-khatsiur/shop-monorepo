@@ -1,6 +1,6 @@
 import { Context } from "hono";
 import * as ProductService from "../services/productService";
-import { parseSortParams } from "../utils/queryParser";
+import { parseSortParams, parseBooleanParam } from "../utils/queryParser";
 
 export const getProducts = (c: Context) => {
   const page = Number(c.req.query("page") || 1);
@@ -10,6 +10,8 @@ export const getProducts = (c: Context) => {
   const filters = {
     brandSlug: c.req.query("brand"),
     categorySlug: c.req.query("category"),
+    isActive: parseBooleanParam(c.req.query("isActive")),
+    isNew: parseBooleanParam(c.req.query("isNew")),
   };
 
   const result = ProductService.getProducts(page, limit, filters, sort);

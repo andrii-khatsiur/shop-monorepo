@@ -57,7 +57,7 @@ export const apiClient = {
     all: async (
       page: number = 1,
       limit: number = 10,
-      filters?: { brand?: string; category?: string },
+      filters?: { brand?: string; category?: string; isActive?: boolean; isNew?: boolean },
       sorter?: { field?: string; direction?: "asc" | "desc" }
     ): Promise<PaginatedProducts> => {
       const params = new URLSearchParams();
@@ -68,6 +68,12 @@ export const apiClient = {
       }
       if (filters?.category) {
         params.append("category", filters.category);
+      }
+      if (filters?.isActive !== undefined) {
+        params.append("isActive", String(filters.isActive));
+      }
+      if (filters?.isNew !== undefined) {
+        params.append("isNew", String(filters.isNew));
       }
       if (sorter?.field) {
         params.append("sortBy", sorter.field);
@@ -110,7 +116,8 @@ export const apiClient = {
 
   brands: {
     all: async (
-      sorter?: { field?: string; direction?: "asc" | "desc" }
+      sorter?: { field?: string; direction?: "asc" | "desc" },
+      filters?: { isActive?: boolean }
     ): Promise<Brand[]> => {
       const params = new URLSearchParams();
       if (sorter?.field) {
@@ -118,6 +125,9 @@ export const apiClient = {
         if (sorter.direction) {
           params.append("sortDir", sorter.direction);
         }
+      }
+      if (filters?.isActive !== undefined) {
+        params.append("isActive", String(filters.isActive));
       }
       const response: AxiosResponse<Brand[]> = await axiosClient.get("/brands", { params });
       return response.data;
@@ -145,7 +155,8 @@ export const apiClient = {
 
   categories: {
     all: async (
-      sorter?: { field?: string; direction?: "asc" | "desc" }
+      sorter?: { field?: string; direction?: "asc" | "desc" },
+      filters?: { isActive?: boolean }
     ): Promise<Category[]> => {
       const params = new URLSearchParams();
       if (sorter?.field) {
@@ -153,6 +164,9 @@ export const apiClient = {
         if (sorter.direction) {
           params.append("sortDir", sorter.direction);
         }
+      }
+      if (filters?.isActive !== undefined) {
+        params.append("isActive", String(filters.isActive));
       }
       const response: AxiosResponse<Category[]> = await axiosClient.get(
         "/categories",

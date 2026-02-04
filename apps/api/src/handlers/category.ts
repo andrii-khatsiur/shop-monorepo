@@ -1,11 +1,14 @@
 import { Context } from "hono";
 import * as CategoryService from "../services/categoryService";
-import { parseSortParams } from "../utils/queryParser";
+import { parseSortParams, parseBooleanParam } from "../utils/queryParser";
 
 export const getCategories = (c: Context) => {
   const sort = parseSortParams(c);
+  const filters = {
+    isActive: parseBooleanParam(c.req.query("isActive")),
+  };
 
-  const categories = CategoryService.getCategories(sort);
+  const categories = CategoryService.getCategories(sort, filters);
   return c.json(categories);
 };
 

@@ -1,16 +1,18 @@
-import { Table, Button } from "antd";
+import { Table, Button, Space } from "antd";
 import type { TableProps } from "antd";
 import type { Brand } from "@shop-monorepo/types";
 
 import { useModal } from "../../context/ModalContext";
 import { useBrands, useDeleteBrand } from "../../hooks/useBrandQueries";
 import { useTableSorter } from "../../hooks/useTableSorter";
+import { useBooleanParams } from "../../hooks/useUrlParam";
 
 import { PlusOutlined } from "@ant-design/icons";
 import { StatusIndicator } from "../../components/StatusIndicator";
 import { RightAlignedSpace } from "../../components/RightAlignedSpace";
 import { DeleteButton } from "../../components/DeleteButton";
 import { EditButton } from "../../components/EditButton";
+import { BooleanSelectFilter } from "../../components/BooleanSelectFilter";
 import {
   PageContainer,
   Toolbar,
@@ -23,7 +25,8 @@ import { EditBrandForm } from "./EditBrandForm";
 export const BrandsPage: React.FC = () => {
   const { openModal } = useModal();
   const { sorter, handleTableChange } = useTableSorter();
-  const { data: brands, isLoading } = useBrands(sorter);
+  const filters = useBooleanParams(["isActive"]);
+  const { data: brands, isLoading } = useBrands(sorter, filters);
   const { mutate: deleteBrand } = useDeleteBrand();
 
   const showCreateBrandModal = () => {
@@ -59,7 +62,7 @@ export const BrandsPage: React.FC = () => {
     {
       title: "Дія",
       key: "action",
-      align: "right", // Align header text to right
+      align: "right",
       render: (_, record) => (
         <RightAlignedSpace size="middle">
           <EditButton onClick={() => showEditBrandModal(record)} />
@@ -82,6 +85,9 @@ export const BrandsPage: React.FC = () => {
         >
           Додати бренд
         </Button>
+        <Space>
+          <BooleanSelectFilter name="isActive" placeholder="Активний" />
+        </Space>
       </Toolbar>
       <TableContainer>
         <Table

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Table, Button } from "antd";
 import type { TableProps } from "antd";
 import type { Product } from "@shop-monorepo/types";
@@ -25,7 +25,7 @@ import { useProducts, useDeleteProduct } from "../../hooks/useProductQueries";
 import { useBrands } from "../../hooks/useBrandQueries";
 import { useCategories } from "../../hooks/useCategoryQueries";
 import { usePagination } from "../../hooks/usePagination";
-import { useProductFilters } from "../../hooks/useProductFilters";
+import { useBooleanParams, useStringParams } from "../../hooks/useUrlParam";
 import { useTableSorter } from "../../hooks/useTableSorter";
 import { ROUTES } from "../../routes/routes";
 import { formatPrice } from "../../utils/currency";
@@ -39,13 +39,13 @@ export const ProductsPage: React.FC = () => {
   const { data: brands = [] } = useBrands();
   const { data: categories = [] } = useCategories();
 
-  const {
-    filters,
-    brandFilter,
-    selectedCategoryId,
-    setBrandFilter,
-    setCategoryFilter,
-  } = useProductFilters(categories);
+  const booleanFilters = useBooleanParams(["isActive", "isNew"]);
+  const stringFilters = useStringParams(["brand", "category"]);
+
+  const filters = useMemo(
+    () => ({ ...booleanFilters, ...stringFilters }),
+    [booleanFilters, stringFilters]
+  );
 
   const { sorter, handleTableChange } = useTableSorter();
 
@@ -135,7 +135,7 @@ export const ProductsPage: React.FC = () => {
     {
       title: "Дія",
       key: "action",
-      align: "right", // Align header text to right
+      align: "right",
       render: (_, record) => (
         <RightAlignedSpace size="middle">
           <Button
@@ -162,14 +162,7 @@ export const ProductsPage: React.FC = () => {
         >
           Додати продукт
         </Button>
-        <ProductFilters
-          brands={brands}
-          categories={categories}
-          brandFilter={brandFilter}
-          selectedCategoryId={selectedCategoryId}
-          onBrandChange={setBrandFilter}
-          onCategoryChange={setCategoryFilter}
-        />
+        <ProductFilters />
       </Toolbar>
       <TableContainer>
         <Table

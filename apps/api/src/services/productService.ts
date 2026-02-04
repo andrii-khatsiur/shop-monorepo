@@ -77,6 +77,8 @@ export function createProduct(data: ProductInput): Product | null {
 export interface ProductFilters {
   brandSlug?: string;
   categorySlug?: string;
+  isActive?: boolean;
+  isNew?: boolean;
 }
 
 const mapSortFieldToSnakeCase = (field: string) => {
@@ -110,9 +112,13 @@ export function getProducts(
   const { rows: products, total } = ProductModel.findManyWithFilter(
     page,
     limit,
-    brand?.id,
-    category?.id,
-    mappedSort
+    mappedSort,
+    {
+      brandId: brand?.id,
+      categoryId: category?.id,
+      isActive: filters.isActive,
+      isNew: filters.isNew,
+    }
   );
 
   const productIds = products.map((p) => p.id);

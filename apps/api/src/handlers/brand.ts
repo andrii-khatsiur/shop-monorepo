@@ -1,12 +1,15 @@
 import { Context } from "hono";
 
 import * as BrandService from "../services/brandService";
-import { parseSortParams } from "../utils/queryParser";
+import { parseSortParams, parseBooleanParam } from "../utils/queryParser";
 
 export const getBrands = (c: Context) => {
   const sort = parseSortParams(c);
+  const filters = {
+    isActive: parseBooleanParam(c.req.query("isActive")),
+  };
 
-  const brands = BrandService.getBrands(sort);
+  const brands = BrandService.getBrands(sort, filters);
   return c.json(brands);
 };
 

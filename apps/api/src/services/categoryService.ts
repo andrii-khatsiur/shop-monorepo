@@ -63,18 +63,32 @@ function buildCategoryTree(categories: Category[]): Category[] {
   return rootCategories;
 }
 
+export interface CategoryFilters {
+  isActive?: boolean;
+}
+
 const mapSortFieldToSnakeCase = (field: string) => {
   if (field === 'isActive') return 'is_active';
   return field;
 };
 
 export function getCategories(
-  sort?: { [key: string]: "asc" | "desc" | undefined }
+  sort?: { [key: string]: "asc" | "desc" | undefined },
+  filters?: CategoryFilters
 ): Category[] {
   const mappedSort = sort
     ? { [mapSortFieldToSnakeCase(Object.keys(sort)[0])]: Object.values(sort)[0] }
     : undefined;
-  const allCategories = CategoryModel.findAllSorted<CategoryRowI>(mappedSort).map(mapRowToCategory);
+
+  const where: Record<string, number> = {};
+  if (filters?.isActive !== undefined) {
+    where.is_active = filters.isActive ? 1 : 0;
+  }
+
+  const defaultSort = { name: "asc" } as { [key: string]: "asc" | "desc" };
+  const effectiveSort = mappedSort && Object.keys(mappedSort).length > 0 ? mappedSort : defaultSort;
+
+  const allCategories = CategoryModel.findMany<CategoryRowI>(where, effectiveSort).map(mapRowToCategory);
   return buildCategoryTree(allCategories);
 }
 

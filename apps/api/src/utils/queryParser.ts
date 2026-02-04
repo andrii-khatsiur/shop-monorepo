@@ -1,5 +1,12 @@
 import { Context } from "hono";
 
+export const parseBooleanParam = (
+  value: string | undefined
+): boolean | undefined => {
+  if (value === undefined) return undefined;
+  return value === "true";
+};
+
 export function parseSortParams(
   c: Context
 ): { [key: string]: "asc" | "desc" | undefined } | undefined {

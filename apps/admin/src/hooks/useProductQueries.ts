@@ -8,7 +8,7 @@ const PRODUCT_QUERY_KEY = "products"; // Use a single key for all products queri
 interface ProductsQueryParams {
   page?: number;
   limit?: number;
-  filters?: { brand?: string; category?: string };
+  filters?: { brand?: string; category?: string; isActive?: boolean; isNew?: boolean };
   sorter?: { field?: string; direction?: "asc" | "desc" };
 }
 

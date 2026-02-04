@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Table, Button } from "antd";
+import { Table, Button, Space } from "antd";
 import type { TableProps } from "antd";
 
 import { useModal } from "../../context/ModalContext";
@@ -8,6 +8,7 @@ import {
   useDeleteCategory,
 } from "../../hooks/useCategoryQueries";
 import { useTableSorter } from "../../hooks/useTableSorter";
+import { useBooleanParams } from "../../hooks/useUrlParam";
 
 import type { Category } from "@shop-monorepo/types";
 import { PlusOutlined } from "@ant-design/icons";
@@ -15,6 +16,7 @@ import { StatusIndicator } from "../../components/StatusIndicator";
 import { RightAlignedSpace } from "../../components/RightAlignedSpace";
 import { DeleteButton } from "../../components/DeleteButton";
 import { EditButton } from "../../components/EditButton";
+import { BooleanSelectFilter } from "../../components/BooleanSelectFilter";
 import {
   PageContainer,
   Toolbar,
@@ -27,7 +29,8 @@ import { EditCategoryForm } from "./EditCategoryForm";
 export const CategoriesPage: React.FC = () => {
   const { openModal } = useModal();
   const { sorter, handleTableChange } = useTableSorter();
-  const { data: categories, isLoading } = useCategories(sorter);
+  const filters = useBooleanParams(["isActive"]);
+  const { data: categories, isLoading } = useCategories(sorter, filters);
   const { mutate: deleteCategory } = useDeleteCategory();
 
   const rootCategories = useMemo(() => categories || [], [categories]);
@@ -110,6 +113,9 @@ export const CategoriesPage: React.FC = () => {
         >
           Додати категорію
         </Button>
+        <Space>
+          <BooleanSelectFilter name="isActive" placeholder="Активний" />
+        </Space>
       </Toolbar>
       <TableContainer>
         <Table
