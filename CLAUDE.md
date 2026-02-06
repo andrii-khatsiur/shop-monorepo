@@ -47,7 +47,8 @@ packages/
 - **Handlers**: `handlers/` - Request handlers (auth, brand, category, product)
 - **Services**: `services/` - Business logic layer (validation, mapping, orchestration)
 - **Models**: `db/models/` - Abstract Model base class with CRUD operations
-- **Middleware**: `middleware/` - Auth verification, request/error logging
+- **Middleware**: `middleware/` - Auth verification (`authMiddleware`, `requireAdmin`), request/error logging
+- **Utils**: `utils/` - Helpers including `roles.ts` (ROLES constant, `isAdmin` function)
 - **Database**: SQLite with migrations in `db/migrations/`
 
 ### Admin Architecture (`apps/admin/src/`)
@@ -60,8 +61,11 @@ packages/
 ### Shared Types
 Import from `@shop-monorepo/types`:
 ```typescript
-import type { Product, Brand, Category } from "@shop-monorepo/types"
+import type { Product, Brand, Category, SafeUser } from "@shop-monorepo/types"
 ```
+
+- **User** - full user type with `googleId` (internal use only)
+- **SafeUser** - user without sensitive fields (for API responses and context)
 
 ### Path Aliases
 - Root: `@apps/*` -> `apps/*/src`, `@packages/*` -> `packages/*/src`
@@ -72,13 +76,20 @@ import type { Product, Brand, Category } from "@shop-monorepo/types"
 
 Base URL: `/api`
 
+### Public (no auth)
 - `GET /ping` - Health check
 - `GET /auth/google` - Google OAuth flow
-- Products: `GET|POST /products`, `GET|PUT|DELETE /products/{idOrSlug}`
-- Brands: `GET|POST /brands`, `GET /brands/{slug}`, `PUT|DELETE /brands/{id}`
-- Categories: `GET|POST /categories`, `GET /categories/{slug}`, `PUT|DELETE /categories/{id}`
+- `POST /auth/login` - Login with email/password
+- `GET /auth/me` - Get current user (returns null if not authenticated)
+- `GET /brands`, `GET /brands/:slug` - List/get brands
+- `GET /categories`, `GET /categories/:slug` - List/get categories
+- `GET /products`, `GET /products/:idOrSlug` - List/get products
 
-All endpoints except `/ping` and `/auth/google` require JWT Bearer token.
+### Admin only (requires JWT + admin role)
+- `POST /brands`, `PUT /brands/:id`, `DELETE /brands/:id`
+- `POST /categories`, `PUT /categories/:id`, `DELETE /categories/:id`
+- `POST /products`, `PUT /products/:id`, `DELETE /products/:id`
+- `POST /upload`, `DELETE /upload`
 
 ## Database
 
