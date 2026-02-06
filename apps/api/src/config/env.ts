@@ -8,9 +8,10 @@ interface Env {
   GOOGLE_CLIENT_SECRET: string;
   JWT_SECRET: string;
   FRONTEND_URL: string;
-  AWS_BUCKET_NAME?: string;
-  AWS_ACCESS_KEY_ID?: string;
-  AWS_SECRET_ACCESS_KEY?: string;
+  R2_BUCKET_NAME?: string;
+  R2_ACCESS_KEY_ID?: string;
+  R2_SECRET_ACCESS_KEY?: string;
+  R2_PUBLIC_URL?: string;
 }
 
 const env: Env = {
@@ -21,9 +22,10 @@ const env: Env = {
   GOOGLE_CLIENT_SECRET: Bun.env.GOOGLE_CLIENT_SECRET || "",
   JWT_SECRET: Bun.env.JWT_SECRET || "change-me-at-production", // Default for development
   FRONTEND_URL: Bun.env.FRONTEND_URL || "http://localhost:3200",
-  AWS_BUCKET_NAME: Bun.env.AWS_BUCKET_NAME,
-  AWS_ACCESS_KEY_ID: Bun.env.AWS_ACCESS_KEY_ID,
-  AWS_SECRET_ACCESS_KEY: Bun.env.AWS_SECRET_ACCESS_KEY,
+  R2_BUCKET_NAME: Bun.env.AWS_BUCKET_NAME,
+  R2_ACCESS_KEY_ID: Bun.env.AWS_ACCESS_KEY_ID,
+  R2_SECRET_ACCESS_KEY: Bun.env.AWS_SECRET_ACCESS_KEY,
+  R2_PUBLIC_URL: Bun.env.R2_PUBLIC_URL,
 };
 
 // Validate required environment variables
