@@ -71,9 +71,19 @@ export const FilePicker: React.FC<FilePickerProps> = ({
       ]
     : [];
 
-  const handleRemove = () => {
-    onChange?.(undefined);
-    message.info("Файл видалено.");
+  const handleRemove = async () => {
+    if (!value) return;
+
+    try {
+      setInternalLoading(true);
+      await apiClient.upload.delete(value);
+      onChange?.(undefined);
+      message.success("Файл видалено.");
+    } catch (error: any) {
+      message.error(`Помилка видалення файлу: ${error.message}`);
+    } finally {
+      setInternalLoading(false);
+    }
   };
 
   return (

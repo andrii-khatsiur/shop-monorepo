@@ -218,5 +218,10 @@ export const apiClient = {
       );
       return response.data;
     },
+    delete: async (url: string): Promise<{ success: boolean }> => {
+      const response: AxiosResponse<{ success: boolean }> =
+        await axiosClient.delete("/upload", { data: { url } });
+      return response.data;
+    },
   },
 };

@@ -33,4 +33,10 @@ export const R2Service = {
       url: `${ENV.R2_PUBLIC_URL}/${key}`,
     };
   },
+
+  async deleteFile(url: string) {
+    const key = url.replace(`${ENV.R2_PUBLIC_URL}/`, "");
+    const s3file = r2.file(key, { bucket: ENV.R2_BUCKET_NAME });
+    await s3file.delete();
+  },
 };
