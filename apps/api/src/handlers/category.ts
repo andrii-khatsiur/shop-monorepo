@@ -25,7 +25,7 @@ export const getCategory = (c: Context) => {
 
 export const createCategory = async (c: Context) => {
   const body = await c.req.json();
-  const newCategory = CategoryService.createCategory(body);
+  const newCategory = await CategoryService.createCategory(body);
   return c.json(newCategory, 201);
 };
 
@@ -33,7 +33,7 @@ export const updateCategory = async (c: Context) => {
   const id = Number(c.req.param("id"));
 
   const body = await c.req.json();
-  const updated = CategoryService.updateCategory(id, body);
+  const updated = await CategoryService.updateCategory(id, body);
 
   if (!updated) return c.json({ error: "Category not found" }, 404);
   return c.json(updated);

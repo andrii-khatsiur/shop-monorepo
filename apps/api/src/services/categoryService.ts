@@ -1,10 +1,12 @@
 import { slugify } from "../utils/common";
 
 import { CategoryModel, CategoryRowI } from "../db/models/CategoryModel ";
+import { R2Service } from "./r2Service";
 import type { Category } from "@shop-monorepo/types";
 
 interface CategoryDto {
   name: string;
+  image?: string | null;
   isActive: boolean;
   parentId?: number | null;
 }
@@ -13,6 +15,7 @@ const mapRowToCategory = (row: CategoryRowI): Category => ({
   id: row.id,
   name: row.name,
   slug: row.slug,
+  image: row.image,
   isActive: Boolean(row.is_active),
   parentId: row.parent_id,
 });
@@ -20,11 +23,16 @@ const mapRowToCategory = (row: CategoryRowI): Category => ({
 const mapCategoryToRow = (dto: CategoryDto): Omit<CategoryRowI, "id"> => ({
   name: dto.name,
   slug: slugify(dto.name),
+  image: dto.image ?? null,
   is_active: dto.isActive ? 1 : 0,
   parent_id: dto.parentId ?? null,
 });
 
-export function createCategory(dto: CategoryDto): Category {
+export async function createCategory(dto: CategoryDto): Promise<Category> {
+  if (dto.image?.includes("/temp/")) {
+    dto.image = await R2Service.moveFromTemp(dto.image, "categories");
+  }
+
   const row = mapCategoryToRow(dto);
 
   try {
@@ -97,9 +105,13 @@ export function getCategoryBySlug(slug: string): Category | null {
   return row ? mapRowToCategory(row) : null;
 }
 
-export function updateCategory(id: number, data: CategoryDto): Category | null {
+export async function updateCategory(id: number, data: CategoryDto): Promise<Category | null> {
   const existing = CategoryModel.findById(id);
   if (!existing) return null;
+
+  if (data.image?.includes("/temp/")) {
+    data.image = await R2Service.moveFromTemp(data.image, "categories");
+  }
 
   const updatedRow = mapCategoryToRow(data);
 

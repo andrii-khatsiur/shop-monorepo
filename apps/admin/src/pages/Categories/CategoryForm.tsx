@@ -1,6 +1,7 @@
 import React from "react";
 import { Form, Input, Switch, Button, Select } from "antd";
 import type { Category, CategoryInput } from "@shop-monorepo/types";
+import { FilePicker } from "../../components/FilePicker";
 
 interface CategoryFormProps {
   initialValues?: Partial<CategoryInput>;
@@ -51,6 +52,9 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
         ]}
       >
         <Input />
+      </Form.Item>
+      <Form.Item name="image" label="Зображення">
+        <FilePicker />
       </Form.Item>
       <Form.Item
         name="parentId"

@@ -64,7 +64,7 @@ export async function createProduct(data: ProductInput): Promise<Product | null>
   validateProductInput(data);
 
   if (data.image?.includes("/temp/")) {
-    data.image = await R2Service.moveToProducts(data.image);
+    data.image = await R2Service.moveFromTemp(data.image, "products");
   }
 
   const product = ProductModel.createWithCategories(
@@ -152,7 +152,7 @@ export async function updateProduct(id: number, data: ProductInput): Promise<Pro
   validateProductInput(data);
 
   if (data.image?.includes("/temp/")) {
-    data.image = await R2Service.moveToProducts(data.image);
+    data.image = await R2Service.moveFromTemp(data.image, "products");
   }
 
   const updatedProduct = ProductModel.updateProductWithCategories(

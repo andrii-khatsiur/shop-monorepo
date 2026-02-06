@@ -4,6 +4,7 @@ export interface CategoryRowI {
   id: number;
   name: string;
   slug: string;
+  image: string | null;
   is_active: number;
   parent_id: number | null;
 }

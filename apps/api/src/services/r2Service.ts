@@ -1,6 +1,7 @@
 import { S3Client } from "bun";
 import { ENV } from "../config/env";
 import { v4 as uuidv4 } from "uuid";
+import { logger } from "../utils/logger";
 
 if (
   !ENV.R2_BUCKET_NAME ||
@@ -9,7 +10,7 @@ if (
   !ENV.R2_PUBLIC_URL ||
   !ENV.R2_ENDPOINT
 ) {
-  throw new Error("R2 environment variables are not set");
+  logger.error("R2 environment variables are not set");
 }
 
 const r2 = new S3Client({
@@ -34,9 +35,9 @@ export const R2Service = {
     };
   },
 
-  async moveToProducts(tempUrl: string): Promise<string> {
+  async moveFromTemp(tempUrl: string, targetFolder: string): Promise<string> {
     const tempKey = tempUrl.replace(`${ENV.R2_PUBLIC_URL}/`, "");
-    const newKey = tempKey.replace("temp/", "products/");
+    const newKey = tempKey.replace("temp/", `${targetFolder}/`);
 
     const tempFile = r2.file(tempKey, { bucket: ENV.R2_BUCKET_NAME });
     const content = await tempFile.arrayBuffer();

@@ -24,6 +24,7 @@ CREATE TABLE
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     slug TEXT NOT NULL UNIQUE,
+    image TEXT,
     is_active INTEGER NOT NULL DEFAULT 1,
     parent_id INTEGER REFERENCES categories (id) ON DELETE SET NULL
   );
