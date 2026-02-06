@@ -4,9 +4,9 @@ import { sign } from "hono/jwt";
 import { ENV } from "../config/env";
 import { logger } from "../utils/logger";
 import { UserService } from "../services/userService";
-import type { User } from "@shop-monorepo/types";
+import type { SafeUser } from "@shop-monorepo/types";
 
-async function generateToken(user: User): Promise<string> {
+async function generateToken(user: SafeUser): Promise<string> {
   return sign(
     {
       id: user.id,

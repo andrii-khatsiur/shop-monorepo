@@ -1,9 +1,9 @@
 import React, { createContext, useContext } from "react";
-import type { User } from "@shop-monorepo/types";
+import type { SafeUser } from "@shop-monorepo/types";
 import { useMe, useLogin, useLogout } from "../hooks/useAuthQueries";
 
 interface AuthContextType {
-  user: User | null;
+  user: SafeUser | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;

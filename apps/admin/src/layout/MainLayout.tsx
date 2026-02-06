@@ -28,6 +28,15 @@ const HeaderButton = styled(Button)`
   height: 64px;
 `;
 
+const UserEmail = styled.span`
+  margin-right: 8px;
+  color: rgba(0, 0, 0, 0.65);
+`;
+
+const HeaderRight = styled(Flex)`
+  padding-right: 16px;
+`;
+
 const ContentS = styled(Content)<{ $bg: string; $radius: number }>`
   background: ${({ $bg }) => $bg};
   border-radius: ${({ $radius }) => $radius}px;
@@ -75,7 +84,7 @@ export const MainLayout: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
-  const { isAuthenticated, isLoading, logout } = useAuth();
+  const { isAuthenticated, isLoading, logout, user } = useAuth();
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -116,11 +125,14 @@ export const MainLayout: React.FC<{ children: React.ReactNode }> = ({
               icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
               onClick={() => setCollapsed(!collapsed)}
             />
-            <HeaderButton
-              type="text"
-              icon={<LogoutOutlined />}
-              onClick={handleLogout}
-            />
+            <HeaderRight align="center">
+              {user?.email && <UserEmail>{user.email}</UserEmail>}
+              <HeaderButton
+                type="text"
+                icon={<LogoutOutlined />}
+                onClick={handleLogout}
+              />
+            </HeaderRight>
           </Flex>
         </HeaderS>
         <ContentS $bg={colorBgContainer} $radius={borderRadiusLG}>
