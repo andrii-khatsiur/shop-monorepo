@@ -5,6 +5,7 @@ import { ENV } from "../config/env";
 
 const authRoutes = new Hono();
 
+// Public routes
 authRoutes.post("/login", handleLogin);
 authRoutes.get("/me", handleMe);
 
