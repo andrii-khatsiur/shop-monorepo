@@ -21,7 +21,7 @@ const r2 = new S3Client({
 
 export const R2Service = {
   async uploadFile(file: File) {
-    const key = `products/${uuidv4()}-${file.name}`;
+    const key = `temp/${uuidv4()}-${file.name}`;
 
     const s3file = r2.file(key, { bucket: ENV.R2_BUCKET_NAME });
 
@@ -32,6 +32,23 @@ export const R2Service = {
     return {
       url: `${ENV.R2_PUBLIC_URL}/${key}`,
     };
+  },
+
+  async moveToProducts(tempUrl: string): Promise<string> {
+    const tempKey = tempUrl.replace(`${ENV.R2_PUBLIC_URL}/`, "");
+    const newKey = tempKey.replace("temp/", "products/");
+
+    const tempFile = r2.file(tempKey, { bucket: ENV.R2_BUCKET_NAME });
+    const content = await tempFile.arrayBuffer();
+    const contentType =
+      (await tempFile.stat())?.type || "application/octet-stream";
+
+    const newFile = r2.file(newKey, { bucket: ENV.R2_BUCKET_NAME });
+    await newFile.write(content, { type: contentType });
+
+    await tempFile.delete();
+
+    return `${ENV.R2_PUBLIC_URL}/${newKey}`;
   },
 
   async deleteFile(url: string) {

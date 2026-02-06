@@ -2,6 +2,7 @@ import { calculateDiscount, slugify } from "../utils/common";
 import { ProductModel, ProductRowI } from "../db/models/ProductModel";
 import { BrandModel, BrandRowI } from "../db/models/BrandModel";
 import { CategoryModel, CategoryRowI } from "../db/models/CategoryModel ";
+import { R2Service } from "./r2Service";
 import type {
   Product,
   ProductInput,
@@ -59,8 +60,12 @@ const mapToProduct =
     categoryIds: categoriesMap[row.id] ?? [],
   });
 
-export function createProduct(data: ProductInput): Product | null {
+export async function createProduct(data: ProductInput): Promise<Product | null> {
   validateProductInput(data);
+
+  if (data.image?.includes("/temp/")) {
+    data.image = await R2Service.moveToProducts(data.image);
+  }
 
   const product = ProductModel.createWithCategories(
     mapToProductRow(data),
@@ -140,11 +145,15 @@ export function getProductById(id: number): Product | null {
   return mapToProduct(categoriesMap)(row);
 }
 
-export function updateProduct(id: number, data: ProductInput): Product | null {
+export async function updateProduct(id: number, data: ProductInput): Promise<Product | null> {
   const existing = ProductModel.findById<ProductRowI>(id);
   if (!existing) return null;
 
   validateProductInput(data);
+
+  if (data.image?.includes("/temp/")) {
+    data.image = await R2Service.moveToProducts(data.image);
+  }
 
   const updatedProduct = ProductModel.updateProductWithCategories(
     id,
