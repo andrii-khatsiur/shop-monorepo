@@ -1,15 +1,14 @@
 import { Context, Next } from "hono";
 import { verify } from "hono/jwt";
 import { ENV } from "../config/env";
-import { User } from "@shop-monorepo/types";
+import { SafeUser } from "@shop-monorepo/types";
 
 import { logger } from "../utils/logger";
 import { UserService } from "../services/userService";
 
 export type Env = {
   Variables: {
-    user: User;
-    jwtPayload: any;
+    user: SafeUser;
   };
 };
 

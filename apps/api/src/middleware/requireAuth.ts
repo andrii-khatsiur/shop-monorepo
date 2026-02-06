@@ -1,10 +1,10 @@
 import { Context, Next } from "hono";
-import { User } from "@shop-monorepo/types";
+import { SafeUser } from "@shop-monorepo/types";
 import { isAdmin } from "../utils/roles";
 
 export type AuthEnv = {
   Variables: {
-    user: User;
+    user: SafeUser;
   };
 };
 

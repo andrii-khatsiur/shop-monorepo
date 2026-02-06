@@ -1,7 +1,7 @@
 import type { Brand, BrandInput } from "./Brand";
 import type { Category, CategoryInput } from "./Category";
 import type { Product, ProductInput, PaginatedProducts } from "./Product";
-import type { User } from "./User";
+import type { User, SafeUser } from "./User";
 
 export {
   Brand,
@@ -12,4 +12,5 @@ export {
   ProductInput,
   PaginatedProducts,
   User,
+  SafeUser,
 };

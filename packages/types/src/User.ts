@@ -7,3 +7,5 @@ export interface User {
   role: string;
   createdAt: string;
 }
+
+export type SafeUser = Omit<User, "googleId">;

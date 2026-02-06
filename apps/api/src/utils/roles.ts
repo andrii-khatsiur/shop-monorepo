@@ -1,4 +1,4 @@
-import { User } from "@shop-monorepo/types";
+import { SafeUser } from "@shop-monorepo/types";
 
 export const ROLES = {
   ADMIN: "admin",
@@ -7,6 +7,6 @@ export const ROLES = {
 
 export type Role = (typeof ROLES)[keyof typeof ROLES];
 
-export const isAdmin = (user: User): boolean => {
+export const isAdmin = (user: SafeUser): boolean => {
   return user.role === ROLES.ADMIN;
 };
