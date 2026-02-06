@@ -13,6 +13,7 @@ import { convertPriceToCoins, convertCoinsToPrice } from "../../utils/currency";
 import type { ProductInput } from "@shop-monorepo/types";
 import { useBrands } from "@/hooks/useBrandQueries";
 import { useCategories } from "@/hooks/useCategoryQueries";
+import { FilePicker } from "../../components/FilePicker";
 
 interface ProductFormProps {
   initialValues?: Partial<ProductInput>;
@@ -81,10 +82,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         name="image"
         label="URL зображення"
         rules={[
-          { required: true, message: "Будь ласка, введіть URL зображення" },
+          { required: true, message: "Будь ласка, завантажте зображення" },
         ]}
       >
-        <Input />
+        <FilePicker />
       </Form.Item>
       <Form.Item
         name="price"

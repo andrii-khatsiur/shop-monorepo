@@ -289,6 +289,37 @@ paths:
       responses:
         "302":
           description: Redirect to Google login page or to the frontend with a JWT token.
+  /upload:
+    post:
+      summary: Upload a file to R2
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required:
+                - file
+      responses:
+        "200":
+          description: File uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    format: url
+                    example: https://<your-r2-public-url>/<file-key>
+        "400":
+          description: No file provided
+        "500":
+          description: File upload failed
 components:
   schemas:
     Product:

@@ -213,6 +213,22 @@ Initiates the Google OAuth 2.0 authentication flow. The user will be redirected 
 
 ---
 
+### File Upload
+
+#### `POST /upload`
+
+Uploads a file.
+
+-   **Request Body:**
+    -   Content-Type: `multipart/form-data`
+    -   `file` (required, file): The file to upload.
+-   **Success Response (200 OK):**
+    -   Content-Type: `application/json`
+    -   Body: `{ "url": "https://<your-r2-public-url>/<file-key>" }`
+-   **Error Response (400 Bad Request):** If the file is not provided.
+
+---
+
 ## Schemas
 
 ### `Product`

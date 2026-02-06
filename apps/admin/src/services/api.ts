@@ -57,7 +57,12 @@ export const apiClient = {
     all: async (
       page: number = 1,
       limit: number = 10,
-      filters?: { brand?: string; category?: string; isActive?: boolean; isNew?: boolean },
+      filters?: {
+        brand?: string;
+        category?: string;
+        isActive?: boolean;
+        isNew?: boolean;
+      },
       sorter?: { field?: string; direction?: "asc" | "desc" }
     ): Promise<PaginatedProducts> => {
       const params = new URLSearchParams();
@@ -129,7 +134,10 @@ export const apiClient = {
       if (filters?.isActive !== undefined) {
         params.append("isActive", String(filters.isActive));
       }
-      const response: AxiosResponse<Brand[]> = await axiosClient.get("/brands", { params });
+      const response: AxiosResponse<Brand[]> = await axiosClient.get(
+        "/brands",
+        { params }
+      );
       return response.data;
     },
     create: async (brand: BrandInput): Promise<Brand> => {
@@ -191,6 +199,23 @@ export const apiClient = {
     delete: async (id: number): Promise<{ message: string }> => {
       const response: AxiosResponse<{ message: string }> =
         await axiosClient.delete(`/categories/${id}`);
+      return response.data;
+    },
+  },
+
+  upload: {
+    file: async (file: File): Promise<{ url: string }> => {
+      const formData = new FormData();
+      formData.append("file", file);
+      const response: AxiosResponse<{ url: string }> = await axiosClient.post(
+        "/upload",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       return response.data;
     },
   },
