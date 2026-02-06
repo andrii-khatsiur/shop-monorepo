@@ -1,5 +1,4 @@
 import type { User } from "@shop-monorepo/types";
-import { DatabaseConnection } from "../db/db";
 import { GoogleUserInput, UserModel, UserRowI } from "../db/models/UserModel";
 
 const mapRowToUser = (row: UserRowI): User => ({
@@ -24,5 +23,36 @@ export const UserService = {
     const user = UserModel.findById<UserRowI>(id);
 
     return user ? mapRowToUser(user) : null;
+  },
+
+  getByEmail(email: string): User | null {
+    const user = UserModel.findByEmail(email);
+    return user ? mapRowToUser(user) : null;
+  },
+
+  async validatePassword(email: string, password: string): Promise<User | null> {
+    const user = UserModel.findByEmail(email);
+    if (!user || !user.password_hash) return null;
+
+    const isValid = await Bun.password.verify(password, user.password_hash);
+    return isValid ? mapRowToUser(user) : null;
+  },
+
+  async createAdminUser(data: { email: string; password: string; name: string }): Promise<User> {
+    const existingUser = UserModel.findByEmail(data.email);
+    if (existingUser) {
+      throw new Error("User with this email already exists");
+    }
+
+    const passwordHash = await Bun.password.hash(data.password);
+    const user = UserModel.createAdminUser({
+      email: data.email,
+      passwordHash,
+      name: data.name,
+      role: "admin",
+    });
+
+    if (!user) throw new Error("Failed to create admin user");
+    return mapRowToUser(user);
   },
 };

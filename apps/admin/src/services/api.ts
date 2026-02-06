@@ -8,6 +8,7 @@ import type {
   ProductInput,
   BrandInput,
   CategoryInput,
+  User,
 } from "@shop-monorepo/types";
 
 import { getAuthToken } from "./auth";
@@ -221,6 +222,21 @@ export const apiClient = {
     delete: async (url: string): Promise<{ success: boolean }> => {
       const response: AxiosResponse<{ success: boolean }> =
         await axiosClient.delete("/upload", { data: { url } });
+      return response.data;
+    },
+  },
+
+  auth: {
+    login: async (
+      email: string,
+      password: string
+    ): Promise<{ token: string; user: User }> => {
+      const response: AxiosResponse<{ token: string; user: User }> =
+        await axiosClient.post("/auth/login", { email, password });
+      return response.data;
+    },
+    me: async (): Promise<User> => {
+      const response: AxiosResponse<User> = await axiosClient.get("/auth/me");
       return response.data;
     },
   },

@@ -2,6 +2,7 @@ CREATE TABLE
   users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT UNIQUE NOT NULL,
+    password_hash TEXT,
     google_id TEXT UNIQUE,
     name TEXT,
     avatar_url TEXT,

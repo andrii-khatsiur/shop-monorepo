@@ -3,6 +3,7 @@ import { Model } from "./model";
 export interface UserRowI {
   id: number;
   email: string;
+  password_hash: string | null;
   google_id: string | null;
   name: string | null;
   avatar_url: string | null;
@@ -15,6 +16,13 @@ export type GoogleUserInput = {
   googleId: string;
   name: string;
   avatarUrl: string | null;
+};
+
+export type AdminUserInput = {
+  email: string;
+  passwordHash: string;
+  name: string;
+  role: "admin";
 };
 
 export class UserModel extends Model {
@@ -32,5 +40,19 @@ export class UserModel extends Model {
     return this.db
       .query(query)
       .get(data.email, data.googleId, data.name, data.avatarUrl) as UserRowI;
+  }
+
+  static findByEmail(email: string): UserRowI | null {
+    return this.findOne<UserRowI>({ email });
+  }
+
+  static createAdminUser(data: AdminUserInput): UserRowI | null {
+    const query = `INSERT INTO ${this.tableName} (email, password_hash, name, role)
+         VALUES (?, ?, ?, ?)
+         RETURNING *`;
+
+    return this.db
+      .query(query)
+      .get(data.email, data.passwordHash, data.name, data.role) as UserRowI;
   }
 }

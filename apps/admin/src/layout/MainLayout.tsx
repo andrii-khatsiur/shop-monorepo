@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
-import { Button, Layout, theme, Flex } from "antd";
-import { isAuthenticated, removeAuthToken } from "../services/auth";
+import { Button, Layout, theme, Flex, Spin } from "antd";
+import { useAuth } from "../context/AuthContext";
 import { ROUTES } from "../routes/routes";
 import { Navigation } from "./Navigation";
 import styled from "styled-components";
@@ -63,21 +63,37 @@ const LogoContainer = styled.div<{ collapsed: boolean }>`
   }
 `;
 
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+`;
+
 export const MainLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
+  const { isAuthenticated, isLoading, logout } = useAuth();
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
   const handleLogout = () => {
-    removeAuthToken();
+    logout();
     navigate(ROUTES.LOGIN);
   };
 
-  if (!isAuthenticated()) {
+  if (isLoading) {
+    return (
+      <LoadingContainer>
+        <Spin size="large" />
+      </LoadingContainer>
+    );
+  }
+
+  if (!isAuthenticated) {
     return <Navigate to={ROUTES.LOGIN} />;
   }
 

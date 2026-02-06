@@ -13,6 +13,7 @@
     "env:copy": "bun run scripts/copy-env.js",
     "db:seed": "bun run apps/api/src/db/seed.ts",
     "db:reset": "bun run apps/api/src/db/reset.ts",
-    "db:fresh": "bun run db:reset && bun run db:seed"
+    "db:fresh": "bun run db:reset && bun run db:seed",
+    "create-admin": "bun run apps/api/src/scripts/createAdmin.ts"
   }
 }

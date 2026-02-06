@@ -2,7 +2,8 @@
   "name": "@apps/api",
   "type": "module",
   "scripts": {
-    "dev": "bun run --hot src/index.ts"
+    "dev": "bun run --hot src/index.ts",
+    "create-admin": "bun run src/scripts/createAdmin.ts"
   },
   "dependencies": {
     "@hono/oauth-providers": "^0.8.5",

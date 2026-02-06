@@ -1,9 +1,12 @@
 import { Hono } from "hono";
 import { googleAuth } from "@hono/oauth-providers/google";
-import { handleGoogleCallback } from "../handlers/auth";
+import { handleGoogleCallback, handleLogin, handleMe } from "../handlers/auth";
 import { ENV } from "../config/env";
 
 const authRoutes = new Hono();
+
+authRoutes.post("/login", handleLogin);
+authRoutes.get("/me", handleMe);
 
 authRoutes.use(
   "/google",
