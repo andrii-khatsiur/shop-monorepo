@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import { Upload, message } from "antd";
 import type { UploadFile, UploadProps } from "antd/es/upload/interface";
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import styled from "styled-components";
-import { apiClient } from "../services/api";
+import { useUploadFile, useDeleteFile } from "../hooks/useUploadQueries";
 
 const StyledUpload = styled(Upload)`
   .ant-upload-select {
@@ -19,18 +19,15 @@ const StyledUpload = styled(Upload)`
 `;
 
 interface FilePickerProps {
-  value?: string; // URL of the uploaded file
+  value?: string;
   onChange?: (url: string | undefined) => void;
-  loading?: boolean;
 }
 
-export const FilePicker: React.FC<FilePickerProps> = ({
-  value,
-  onChange,
-  loading = false,
-}) => {
-  const [internalLoading, setInternalLoading] = useState(false);
-  const isLoading = loading || internalLoading;
+export const FilePicker: React.FC<FilePickerProps> = ({ value, onChange }) => {
+  const uploadMutation = useUploadFile();
+  const deleteMutation = useDeleteFile();
+
+  const isLoading = uploadMutation.isPending || deleteMutation.isPending;
 
   const uploadButton = (
     <div>
@@ -45,46 +42,37 @@ export const FilePicker: React.FC<FilePickerProps> = ({
     onError,
   }) => {
     try {
-      setInternalLoading(true);
-      const result = await apiClient.upload.file(file as File);
+      const result = await uploadMutation.mutateAsync(file as File);
       onSuccess?.(result);
       onChange?.(result.url);
-      message.success("Файл успішно завантажено!");
     } catch (error: any) {
       onError?.(error);
-      message.error(`Помилка завантаження файлу: ${error.message}`);
-      onChange?.(undefined); // Clear value on error
-    } finally {
-      setInternalLoading(false);
+      onChange?.(undefined);
+    }
+  };
+
+  const handleRemove = async () => {
+    if (!value) return;
+
+    try {
+      await deleteMutation.mutateAsync(value);
+      onChange?.(undefined);
+    } catch {
+      // Error handled by mutation
     }
   };
 
   const fileList: UploadFile[] = value
     ? [
         {
-          uid: value, // Unique id, can be the URL itself
-          name: value.substring(value.lastIndexOf("/") + 1), // Extract filename from URL
+          uid: value,
+          name: value.substring(value.lastIndexOf("/") + 1),
           status: "done",
           url: value,
-          thumbUrl: value, // Use the URL as thumbnail
+          thumbUrl: value,
         },
       ]
     : [];
-
-  const handleRemove = async () => {
-    if (!value) return;
-
-    try {
-      setInternalLoading(true);
-      await apiClient.upload.delete(value);
-      onChange?.(undefined);
-      message.success("Файл видалено.");
-    } catch (error: any) {
-      message.error(`Помилка видалення файлу: ${error.message}`);
-    } finally {
-      setInternalLoading(false);
-    }
-  };
 
   return (
     <StyledUpload
@@ -102,7 +90,7 @@ export const FilePicker: React.FC<FilePickerProps> = ({
       }}
       fileList={fileList}
       onRemove={handleRemove}
-      maxCount={1} // Allow only one file
+      maxCount={1}
     >
       {fileList.length >= 1 ? null : uploadButton}
     </StyledUpload>
