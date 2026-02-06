@@ -5,6 +5,7 @@ import { requestLogger } from "./middleware/requestLogger";
 import { authMiddleware } from "./middleware/auth";
 import { errorLogger } from "./middleware/errorLogger";
 import { initDatabase } from "./db/db";
+import { ENV } from "./config/env";
 
 const main = async () => {
   try {
@@ -14,12 +15,10 @@ const main = async () => {
 
     app.onError(errorLogger);
 
-    const frontendUrl = Bun.env.FRONTEND_URL || "http://localhost:3100";
-
     app.use(
       "*",
       cors({
-        origin: frontendUrl,
+        origin: ENV.FRONTEND_URL,
         credentials: true,
       })
     );
@@ -31,7 +30,7 @@ const main = async () => {
     app.route("/api", apiRoutes);
     app.get("/ping", (c) => c.text("pong"));
 
-    const PORT = Number(Bun.env.API_PORT || 3000);
+    const PORT = ENV.PORT;
 
     Bun.serve({
       fetch: app.fetch,

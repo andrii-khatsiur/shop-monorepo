@@ -1,10 +1,8 @@
 import pino from "pino";
-import path from "path";
 
-const isProduction = Bun.env.NODE_ENV === "production";
+import { ENV } from "../config/env";
 
-const logFilePath =
-  Bun.env.LOG_PATH || path.join(process.cwd(), "logs/shop-api.log");
+const isProduction = ENV.NODE_ENV === "production";
 
 const targets = [];
 
@@ -18,7 +16,7 @@ if (!isProduction) {
   targets.push({
     target: "pino/file",
     options: {
-      destination: logFilePath,
+      destination: ENV.LOG_PATH,
       mkdir: true,
     },
     level: isProduction ? "info" : "debug",

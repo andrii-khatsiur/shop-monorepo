@@ -1,11 +1,9 @@
 import { Context } from "hono";
 import { sign } from "hono/jwt";
 
+import { ENV } from "../config/env";
 import { logger } from "../utils/logger";
 import { UserService } from "../services/userService";
-
-const JWT_SECRET = Bun.env.JWT_SECRET || "change-me-at-production";
-const FRONTEND_URL = Bun.env.FRONTEND_URL || "http://localhost:3200";
 
 export async function handleGoogleCallback(c: Context) {
   const googleUser = c.get("user-google");
@@ -37,7 +35,7 @@ export async function handleGoogleCallback(c: Context) {
         role: user.role,
         exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
       },
-      JWT_SECRET
+      ENV.JWT_SECRET
     );
 
     logger.info(
@@ -45,7 +43,7 @@ export async function handleGoogleCallback(c: Context) {
       "User logged in via Google"
     );
 
-    return c.redirect(`${FRONTEND_URL}/auth-callback?token=${token}`);
+    return c.redirect(`${ENV.FRONTEND_URL}/auth-callback?token=${token}`);
   } catch (error) {
     logger.error({ error }, "Error during user upsert");
     return c.json({ error: "Internal Server Error" }, 500);

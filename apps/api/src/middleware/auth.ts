@@ -1,5 +1,6 @@
 import { Context, Next } from "hono";
 import { verify } from "hono/jwt";
+import { ENV } from "../config/env";
 import { User } from "@shop-monorepo/types";
 
 import { logger } from "../utils/logger";
@@ -12,8 +13,6 @@ export type Env = {
   };
 };
 
-const JWT_SECRET = Bun.env.JWT_SECRET || "change-me";
-
 export const authMiddleware = async (c: Context<Env>, next: Next) => {
   const authHeader = c.req.header("Authorization");
 
@@ -24,7 +23,7 @@ export const authMiddleware = async (c: Context<Env>, next: Next) => {
   const token = authHeader.split(" ")[1];
 
   try {
-    const payload = await verify(token, JWT_SECRET);
+    const payload = await verify(token, ENV.JWT_SECRET);
 
     const user = UserService.getById(Number(payload.id));
 
